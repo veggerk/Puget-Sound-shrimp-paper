@@ -1,5 +1,11 @@
-# Puget-Sound-shrimp-paper
-shrimp and el nino patterns paper
+# Trend analysis of Puget Sound shrimp
 
+This repo contains the data and code necessary to replicate the analyses presented in Veggerby et al. The compendium is structured as follows:
 
-this repo is private for now until we get things figured out. I'm waiting on data upload until Chelsea finalizes the data, at which point I'll redo the shrimp dataset, rerun everything, and upload a final version of the code and the data.
+`\R` folder containing R code
+
+`\data\raw` folder with raw data files
+
+`\data\clean` folder with cleaned data files
+
+`\manuscript` folder with manuscript files
