@@ -1,0 +1,737 @@
+---
+title: "shrimp and ONI analysis"
+author: "Karl Veggerby"
+date: "5/5/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r notes, eval=FALSE, include=FALSE}
+
+# how to merge data to create a unique ID, column headers to create a unique ID to them merge the shrimp and the tow data together. I usually do this in excel but this is how to do it in R:
+
+rawdata$sex_color_combo<-paste(rawdata$sex,rawdata$color,sep="_")
+
+
+#unique ID for shrimp will be year_time_depth
+
+
+# will need to calculate CPUE using the size of the trawl net(tow length multiplied by net width)
+
+# use the depth that they were shooting for with each trawl (10,25,50,70) so that merge will correctly pair with the trawl data.
+
+# note that 1999 has no trawl data, so that year is fully excluded. 2013 has significant errors in data recording so roughly half that year is excluded as well. There was one typo in 2005 trawl data with the dates of one trawl, was labeled as 2004 when it was 2005. That was corrected. 
+```
+
+```{r misc to do, include=FALSE}
+
+#create a linear mixed effects model in R, notes are below:
+
+# model for shrimp would be: density_of_shrimp ~ oni_value+(1|depth)+(1|time_of_day)
+
+# package: "lme4" = linear mixed effects models
+# function: glmer()
+
+
+# for reference "mixed" = fixed + random effects
+
+# do the mixed effects model
+
+
+#run anovas for all shrimp combined as well as a few select species on shrimp cpue versus oni.
+
+#check with Tom Quinn about shrimp ID accuracy and lumping versus splitting
+#tquinn@uw.edu
+```
+
+```{r merging shrimp and cpue, include=FALSE, eval=FALSE}
+shrimp<-read.csv(file="//Users//karlveggerby//Desktop//spring 2021//fish ecology//research paper//shrimp.csv") #load data
+
+cpue<-read.csv(file="//Users//karlveggerby//Desktop//spring 2021//fish ecology//research paper//cpue.csv") #load data
+
+master.shrimp<- merge(shrimp,cpue, by="time.year.depth", all.x=T)
+
+write.csv(master.shrimp, "master.shrimp.csv")
+#merging using unique identifiers so that trawl data can be linked to shrimp catch numbers
+
+shrimp<-read.csv(file="//Users//karlveggerby//Desktop//spring 2021//fish ecology//research paper//master.shrimp.csv") #load data
+
+oni<-read.csv(file="//Users//karlveggerby//Desktop//spring 2021//fish ecology//research paper//oni.csv") #load data
+
+master.shrimp<- merge(shrimp,oni, by="year", all.x=T)
+
+write.csv(master.shrimp, "shrimp.master.v2.csv")
+#merging ONI data into the shrimp dataset
+```
+
+```{r pandalus spp. and pandalus borealis issue, eval=FALSE, include=FALSE}
+shrimp<-read.csv(file="//Users//karlveggerby//Desktop//spring 2021//fish ecology//research paper//shrimp.master.v2.csv") #load data
+
+library(ggplot2)
+Pandalus.borealis<-subset(shrimp, genus.species=="Pandalus borealis")
+ggplot(data=Pandalus.borealis, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "yearly CPUE (#/m2)",title= "Pandalus borealis(common name: pink shrimp)")
+
+Pandalus.sp<-subset(shrimp, genus.species=="Pandalus spp.")
+pink.shrimp<-subset(Pandalus.sp, common.name=="pink shrimp")
+ggplot(data=pink.shrimp, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "yearly CPUE (#/m2)",title= "Pandalus.spp (common name: pink shrimp)")
+
+#talked to Tom Quinn, he said to combine pandalus spp. and pandalus borealis, as they were probably the same but labeled differently. Also said to check back if actually trying to publish to go through field data sheets and make sure that's true. 
+```
+
+```{r anova and tukey test and barplot of all shrimp species}
+#anova and tukey test and barplot of all shrimp species
+rm(list = ls())#clear the workspace
+setwd("/Users/karlveggerby/Desktop/spring 2021/fish ecology/research paper")
+getwd()
+shrimp<-read.csv(file="//Users//karlveggerby//Desktop//spring 2021//fish ecology//research paper//shrimp.master.v3.csv") #load data
+library(ggplot2)
+library(agricolae)
+
+shrimp<-shrimp[!is.na(shrimp$shrimp.cpue), ]
+#removing NAs from data
+
+flotorad = lm(avg.oni.previous.12.months~shrimp.cpue, data=shrimp)
+summary(flotorad)$r.squared
+#calculating r squared for all shrimp versus ONI
+
+
+cor.test(shrimp$avg.oni.previous.12.months, shrimp$shrimp.cpue, method = "pearson")
+#R-squared:  0.02
+#Pearsons correlation: 0.15
+# P value:  5.369e-05
+
+
+lmmaster <- lm(shrimp.cpue ~ el.nino.la.nina, data = shrimp)
+avmaster <- aov(lmmaster)
+summary(avmaster)
+
+tukey.test2 <- HSD.test(avmaster, trt = 'el.nino.la.nina')
+tukey.test2
+# running an ANOVA and Post Hoc Tukey test to determine statistical differences between three groups: la nina, el nino, and no signal
+
+
+
+Oceanic_Nino_Index <- c('La Nina','no signal','El Nino')
+Oceanic_Nino_Index <- factor(Oceanic_Nino_Index, levels=c('La Nina','no signal','El Nino'))
+#turn Oceanic_Nino_Index into an ordered factor so the graph is in the order I want
+shrimp_CPUE <- c(0.012, 0.021, 0.035)
+
+#creating a new dataframe to plot the results of the tukey test
+
+
+#plotting the new dataframe and adding letters to denote significant differences between groups
+nino_cpue_plot <- data.frame(Oceanic_Nino_Index, shrimp_CPUE)
+p1<- ggplot(data=nino_cpue_plot, aes(x=Oceanic_Nino_Index, y=shrimp_CPUE))+
+  geom_bar(stat = "identity")+
+  theme_bw()+
+  labs(x= "",y= "",title= "all shrimp species combined")+
+  ylim(0,0.05)+
+  annotate("text", x = 1, y = 0.022, label = "a")+
+  annotate("text", x = 2, y = 0.031, label = "a")+
+  annotate("text", x = 3, y = 0.045, label = "b")
+
+```
+
+```{r sums of shrimp, eval=FALSE}
+#sums of shrimp species captured over the course of the study
+aggregate(shrimp$number, by=list(shrimp$genus.species.updated), FUN=sum)
+
+#Crangon alaskensis	5393			
+#Eualus pusiolus	148			
+#Eualus suckleyi	6			
+#Eualus townsendi	1			
+#Heptacarpus spp.	1			
+#Hippolytidae	47			
+#Mysida	11			
+#Neotrypaea californiensis	4			
+#Pandalopsis dispar	1172
+#Pandalus danae	1035			
+#Pandalus dispar	7			
+#Pandalus eous	7522			
+#Pandalus goniurus	432			
+#Pandalus hypsinotus	234			
+#Pandalus platyceros	4471			
+#Pandalus spp.	3969
+#Pandalus tridens	3			
+#Spirontocaris holmesi	354			
+#Spirontocaris lamellicornis	5			
+#Spirontocaris prionota	2			
+#Spirontocaris snyderi	3			
+#Spirontocaris spp.	16			
+#unidentified	6	
+
+
+#shrimp with enough numbers to potentially play with
+
+#Crangon alaskensis	5393			
+#Pandalopsis dispar	1172
+#Pandalus danae	1035			
+#Pandalus eous	7522			
+#Pandalus goniurus	432			
+#Pandalus platyceros	4471			
+#Pandalus spp.	3969
+#Spirontocaris holmesi	354			
+
+```
+
+```{r table 2}
+#table2
+aggregate(shrimp$shrimp.cpue, by=list(shrimp$genus.species.updated, shrimp$el.nino.la.nina), FUN=mean)
+```
+
+```{r plotting the groups with more than a few hundred individuals sampled, eval=FALSE, include=FALSE}
+#plotting the groups with more than a few hundred individuals sampled
+crangon_shrimp<-subset(shrimp, genus.species=="Crangon alaskensis")
+ggplot(data=crangon_shrimp, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Crangon alaskensis")
+
+Pandalopsis.dispar<-subset(shrimp, genus.species=="Pandalopsis dispar")
+ggplot(data=Pandalopsis.dispar, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Pandalopsis dispar")
+
+Pandalus.borealis<-subset(shrimp, genus.species=="Pandalus borealis")
+ggplot(data=Pandalus.borealis, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Pandalus borealis")
+
+Pandalus.danae<-subset(shrimp, genus.species=="Pandalus danae")
+ggplot(data=Pandalus.danae, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Pandalus danae")
+
+Pandalus.eous<-subset(shrimp, genus.species=="Pandalus eous")
+ggplot(data=Pandalus.eous, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Pandalus eous")
+
+Pandalus.goniurus<-subset(shrimp, genus.species=="Pandalus goniurus")
+ggplot(data=Pandalus.goniurus, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Pandalus goniurus")
+
+Pandalus.jordani<-subset(shrimp, genus.species=="Pandalus jordani")
+ggplot(data=Pandalus.jordani, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Pandalus jordani")
+
+Pandalus.platyceros<-subset(shrimp, genus.species=="Pandalus platyceros")
+ggplot(data=Pandalus.platyceros, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Pandalus platyceros")
+
+Spirontocaris.holmesi<-subset(shrimp, genus.species=="Spirontocaris holmesi")
+ggplot(data=Spirontocaris.holmesi, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Spirontocaris holmesi")
+
+Pandalus.hypsinotus<-subset(shrimp, genus.species=="Pandalus hypsinotus")
+ggplot(data=Pandalus.hypsinotus, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Pandalus hypsinotus")
+
+
+```
+
+```{r ok now just the ones with data over enough years to make comparison meaningful, eval=FALSE, include=FALSE}
+#ok now just the ones with data over enough years to make comparison meaningful
+crangon_shrimp<-subset(shrimp, genus.species=="Crangon alaskensis")
+ggplot(data=crangon_shrimp, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Crangon alaskensis")
+
+Pandalopsis.dispar<-subset(shrimp, genus.species=="Pandalopsis dispar")
+ggplot(data=Pandalopsis.dispar, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Pandalopsis dispar")
+
+Pandalus.danae<-subset(shrimp, genus.species=="Pandalus danae")
+ggplot(data=Pandalus.danae, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Pandalus danae")
+
+Pandalus.platyceros<-subset(shrimp, genus.species=="Pandalus platyceros")
+ggplot(data=Pandalus.platyceros, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Pandalus platyceros")
+
+Pandalus.borealis<-subset(shrimp, genus.species=="Pandalus borealis")
+ggplot(data=Pandalus.borealis, aes(x=year, y=shrimp.cpue))+
+  geom_bar(stat = "identity")+
+labs(x= "year",y= "CPUE",title= "Pandalus borealis")
+
+
+```
+
+```{r anova and tukey test and barplot of individual shrimp species: Crangon alaskensis}
+#anova and tukey test and barplot of individual shrimp species: Crangon alaskensis
+library(ggplot2)
+library(agricolae)
+
+
+crangon_shrimp<-subset(shrimp, genus.species=="Crangon alaskensis")
+
+flotorad = lm(avg.oni.previous.12.months~shrimp.cpue, data=crangon_shrimp)
+summary(flotorad)$r.squared
+#calculating r squared for all crangon_shrimp versus ONI
+
+cor.test(crangon_shrimp$avg.oni.previous.12.months, crangon_shrimp$shrimp.cpue, method = "pearson")
+#R-squared:  0.02
+#Pearsons correlation: 0.15
+# P value:  0.02
+
+
+lmmaster <- lm(shrimp.cpue ~ el.nino.la.nina, data = crangon_shrimp)
+avmaster <- aov(lmmaster)
+summary(avmaster)
+
+tukey.test2 <- HSD.test(avmaster, trt = 'el.nino.la.nina')
+tukey.test2
+# running an ANOVA and Post Hoc Tukey test to determine statistical differences between three groups: la nina, el nino, and no signal
+
+Oceanic_Nino_Index <- c('La Nina','no signal','El Nino')
+Oceanic_Nino_Index <- factor(Oceanic_Nino_Index, levels=c('La Nina','no signal','El Nino'))
+#turn Oceanic_Nino_Index into an ordered factor so the graph is in the order I want
+shrimp_CPUE <- c(0.013, 0.017, 0.021)
+
+#creating a new dataframe to plot the results of the tukey test
+
+
+#plotting the new dataframe and adding letters to denote significant differences between groups
+nino_cpue_plot <- data.frame(Oceanic_Nino_Index, shrimp_CPUE)
+p2<-ggplot(data=nino_cpue_plot, aes(x=Oceanic_Nino_Index, y=shrimp_CPUE))+
+  geom_bar(stat = "identity")+
+  theme_bw()+
+  ylim(0,0.04)+
+  labs(x= "",y= "",title= "Crangon alaskensis")+
+  annotate("text", x = 1, y = 0.023, label = "a")+
+  annotate("text", x = 2, y = 0.027, label = "a")+
+  annotate("text", x = 3, y = 0.031, label = "a")
+
+```
+
+```{r anova and tukey test and barplot of individual shrimp species: Pandalopsis dispar}
+#anova and tukey test and barplot of individual shrimp species: Pandalopsis dispar
+library(ggplot2)
+library(agricolae)
+
+
+dispar_shrimp<-subset(shrimp, genus.species=="Pandalopsis dispar")
+
+flotorad = lm(avg.oni.previous.12.months~shrimp.cpue, data=dispar_shrimp)
+summary(flotorad)$r.squared
+#calculating r squared for all dispar_shrimpversus ONI
+
+cor.test(dispar_shrimp$avg.oni.previous.12.months, dispar_shrimp$shrimp.cpue, method = "pearson")
+#R-squared:  0.16
+#Pearsons correlation: 0.40
+# P value:  0.007
+
+
+lmmaster <- lm(shrimp.cpue ~ el.nino.la.nina, data = dispar_shrimp)
+avmaster <- aov(lmmaster)
+summary(avmaster)
+
+tukey.test2 <- HSD.test(avmaster, trt = 'el.nino.la.nina')
+tukey.test2
+# running an ANOVA and Post Hoc Tukey test to determine statistical differences between three groups: la nina, el nino, and no signal
+
+Oceanic_Nino_Index <- c('La Nina','no signal','El Nino')
+Oceanic_Nino_Index <- factor(Oceanic_Nino_Index, levels=c('La Nina','no signal','El Nino'))
+#turn Oceanic_Nino_Index into an ordered factor so the graph is in the order I want
+shrimp_CPUE <- c(0.007, 0.015, 0.023)
+
+#creating a new dataframe to plot the results of the tukey test
+
+
+#plotting the new dataframe and adding letters to denote significant differences between groups
+nino_cpue_plot <- data.frame(Oceanic_Nino_Index, shrimp_CPUE)
+p3<-ggplot(data=nino_cpue_plot, aes(x=Oceanic_Nino_Index, y=shrimp_CPUE))+
+  geom_bar(stat = "identity")+
+  theme_bw()+
+  ylim(0,0.04)+
+  labs(x= "",y= "CPUE (# shrimp/m2)",title= "Pandalopsis dispar")+
+  annotate("text", x = 1, y = 0.017, label = "a")+
+  annotate("text", x = 2, y = 0.025, label = "a")+
+  annotate("text", x = 3, y = 0.033, label = "a")
+
+```
+
+```{r anova and tukey test and barplot of individual shrimp species: Pandalus danae}
+#anova and tukey test and barplot of individual shrimp species: Pandalus danae
+library(ggplot2)
+library(agricolae)
+
+
+Pandalus_danae<-subset(shrimp, genus.species=="Pandalus danae")
+
+flotorad = lm(avg.oni.previous.12.months~shrimp.cpue, data=Pandalus_danae)
+summary(flotorad)$r.squared
+#calculating r squared for all Pandalus_danaeversus ONI
+
+cor.test(Pandalus_danae$avg.oni.previous.12.months, Pandalus_danae$shrimp.cpue, method = "pearson")
+#R-squared:  0.02
+#Pearsons correlation: 0.15
+# P value:  0.21
+
+
+lmmaster <- lm(shrimp.cpue ~ el.nino.la.nina, data = Pandalus_danae)
+avmaster <- aov(lmmaster)
+summary(avmaster)
+
+tukey.test2 <- HSD.test(avmaster, trt = 'el.nino.la.nina')
+tukey.test2
+# running an ANOVA and Post Hoc Tukey test to determine statistical differences between three groups: la nina, el nino, and no signal
+
+Oceanic_Nino_Index <- c('La Nina','no signal','El Nino')
+Oceanic_Nino_Index <- factor(Oceanic_Nino_Index, levels=c('La Nina','no signal','El Nino'))
+#turn Oceanic_Nino_Index into an ordered factor so the graph is in the order I want
+shrimp_CPUE <- c(0.002, 0.007, 0.019)
+
+#creating a new dataframe to plot the results of the tukey test
+
+
+#plotting the new dataframe and adding letters to denote significant differences between groups
+nino_cpue_plot <- data.frame(Oceanic_Nino_Index, shrimp_CPUE)
+p4<-ggplot(data=nino_cpue_plot, aes(x=Oceanic_Nino_Index, y=shrimp_CPUE))+
+  geom_bar(stat = "identity")+
+  theme_bw()+
+  ylim(0,0.035)+
+  labs(x= "",y= "",title= "Pandalus danae")+
+  annotate("text", x = 1, y = 0.012, label = "a")+
+  annotate("text", x = 2, y = 0.017, label = "a")+
+  annotate("text", x = 3, y = 0.029, label = "a")
+
+```
+
+```{r anova and tukey test and barplot of individual shrimp species: Pandalus platyceros}
+#anova and tukey test and barplot of individual shrimp species: Pandalus platyceros
+library(ggplot2)
+library(agricolae)
+
+
+Pandalus_platyceros<-subset(shrimp, genus.species=="Pandalus platyceros")
+
+flotorad = lm(avg.oni.previous.12.months~shrimp.cpue, data=Pandalus_platyceros)
+summary(flotorad)$r.squared
+#calculating r squared for all Pandalus_danaeversus ONI
+
+cor.test(Pandalus_platyceros$avg.oni.previous.12.months, Pandalus_platyceros$shrimp.cpue, method = "pearson")
+#R-squared:  0.02
+#Pearsons correlation: 0.16
+# P value:  0.12
+
+
+lmmaster <- lm(shrimp.cpue ~ el.nino.la.nina, data = Pandalus_platyceros)
+avmaster <- aov(lmmaster)
+summary(avmaster)
+
+tukey.test2 <- HSD.test(avmaster, trt = 'el.nino.la.nina')
+tukey.test2
+# running an ANOVA and Post Hoc Tukey test to determine statistical differences between three groups: la nina, el nino, and no signal
+
+Oceanic_Nino_Index <- c('La Nina','no signal','El Nino')
+Oceanic_Nino_Index <- factor(Oceanic_Nino_Index, levels=c('La Nina','no signal','El Nino'))
+#turn Oceanic_Nino_Index into an ordered factor so the graph is in the order I want
+shrimp_CPUE <- c(0.008, 0.02, 0.07)
+
+#creating a new dataframe to plot the results of the tukey test
+
+
+#plotting the new dataframe and adding letters to denote significant differences between groups
+nino_cpue_plot <- data.frame(Oceanic_Nino_Index, shrimp_CPUE)
+p5<-ggplot(data=nino_cpue_plot, aes(x=Oceanic_Nino_Index, y=shrimp_CPUE))+
+  geom_bar(stat = "identity")+
+  theme_bw()+
+  ylim(0,0.15)+
+  labs(x= "Oceanic Nino Index phase",y= "",title= "Pandalus platyceros")+
+  annotate("text", x = 1, y = 0.035, label = "a")+
+  annotate("text", x = 2, y = 0.05, label = "a")+
+  annotate("text", x = 3, y = 0.1, label = "b")
+p5
+```
+
+```{r anova and tukey test and barplot of individual shrimp species: Pandalus eous/jordani}
+#anova and tukey test and barplot of individual shrimp species: Pandalus eous
+library(ggplot2)
+library(agricolae)
+
+
+Pandalus_eous_jordani<-subset(shrimp, genus.species.updated=="Pandalus eous")
+
+flotorad = lm(avg.oni.previous.12.months~shrimp.cpue, data=Pandalus_eous_jordani)
+summary(flotorad)$r.squared
+#calculating r squared for all Pandalus_borealisversus ONI
+
+cor.test(Pandalus_eous_jordani$avg.oni.previous.12.months, Pandalus_eous_jordani$shrimp.cpue, method = "pearson")
+#R-squared:  0.31
+#Pearsons correlation: 0.31
+# P value:  0.0008
+
+
+lmmaster <- lm(shrimp.cpue ~ el.nino.la.nina, data = Pandalus_eous_jordani)
+avmaster <- aov(lmmaster)
+summary(avmaster)
+
+tukey.test2 <- HSD.test(avmaster, trt = 'el.nino.la.nina')
+tukey.test2
+# running an ANOVA and Post Hoc Tukey test to determine statistical differences between three groups: la nina, el nino, and no signal
+
+Oceanic_Nino_Index <- c('La Nina','no signal','El Nino')
+Oceanic_Nino_Index <- factor(Oceanic_Nino_Index, levels=c('La Nina','no signal','El Nino'))
+#turn Oceanic_Nino_Index into an ordered factor so the graph is in the order I want
+shrimp_CPUE <- c(0.018, 0.052, 0.078)
+
+#creating a new dataframe to plot the results of the tukey test
+
+
+#plotting the new dataframe and adding letters to denote significant differences between groups
+nino_cpue_plot <- data.frame(Oceanic_Nino_Index, shrimp_CPUE)
+p6<-ggplot(data=nino_cpue_plot, aes(x=Oceanic_Nino_Index, y=shrimp_CPUE))+
+  geom_bar(stat = "identity")+
+  theme_bw()+
+  ylim(0,0.2)+
+  labs(x= "",y= "",title= "Pandalus eous/jordani")+
+  annotate("text", x = 1, y = 0.088, label = "a")+
+  annotate("text", x = 2, y = 0.122, label = "ab")+
+  annotate("text", x = 3, y = 0.148, label = "b")
+p6
+```
+
+```{r abundance over years and diel vertical migration}
+library(ggplot2)
+library(grid)
+library(gridExtra)
+
+
+sums<-aggregate(shrimp$shrimp.cpue, by=list(shrimp$year, shrimp$depth.target..m.), FUN=sum)
+sums2<-aggregate(sums$x, by=list(sums$Group.1), FUN=sum)
+
+shallowerer<-subset(sums, Group.2 < 50)
+shallowerer<-aggregate(shallowerer$x, by=list(shallowerer$Group.1), FUN=sum)
+
+
+deeperer<-subset(sums, Group.2 > 49)
+deeperer<-aggregate(deeperer$x, by=list(deeperer$Group.1), FUN=sum)
+
+
+
+
+
+px1<-ggplot(data=sums2, aes(x=Group.1, y=x))+
+  geom_bar(stat = "identity")+
+  theme_bw()+
+  ylim(0,3.1)+
+  labs(x= "",y= "",title= "total shrimp CPUE")
+
+px2<-ggplot(data=deeperer, aes(x=Group.1, y=x))+
+  geom_bar(stat = "identity")+
+  theme_bw()+
+  ylim(0,3.1)+
+    labs(x= "",y= "",title= "shrimp CPUE from 50 and 70m depth trawls")
+
+
+px3<-ggplot(data=shallowerer, aes(x=Group.1, y=x))+
+  geom_bar(stat = "identity")+
+  theme_bw()+
+  ylim(0,3.1)+
+  labs(x= "year",y= "",title= "shrimp CPUE from 10 and 25m depth trawls")
+
+grid.arrange(arrangeGrob (px1,px2,px3, ncol=1, nrow=3, left = textGrob("catch per unit effort of all shrimp species (#/m2)", rot = 90, vjust = 1)))
+
+
+```
+
+```{r creating geom_flat_violin}
+
+#using code copied from the internet (https://gist.github.com/dgrtwo/eb7750e74997891d7c20); this creates a new ggplot2 geom object called geom_flat_violin, which is then used in the ggplot to create a raincloud plot in the 'half' or 'flat' violin shape.
+library(ggplot2)
+library(dplyr)
+"%||%" <- function(a, b) {
+  if (!is.null(a)) a else b
+}
+
+geom_flat_violin <- function(mapping = NULL, data = NULL, stat = "ydensity",
+                        position = "dodge", trim = TRUE, scale = "area",
+                        show.legend = NA, inherit.aes = TRUE, ...) {
+  layer(
+    data = data,
+    mapping = mapping,
+    stat = stat,
+    geom = GeomFlatViolin,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(
+      trim = trim,
+      scale = scale,
+      ...
+    )
+  )
+}
+
+#' @rdname ggplot2-ggproto
+#' @format NULL
+#' @usage NULL
+#' @export
+GeomFlatViolin <-
+  ggproto("GeomFlatViolin", Geom,
+          setup_data = function(data, params) {
+            data$width <- data$width %||%
+              params$width %||% (resolution(data$x, FALSE) * 0.9)
+            
+            # ymin, ymax, xmin, and xmax define the bounding rectangle for each group
+            data %>%
+              group_by(group) %>%
+              mutate(ymin = min(y),
+                     ymax = max(y),
+                     xmin = x,
+                     xmax = x + width / 2)
+            
+          },
+          
+          draw_group = function(data, panel_scales, coord) {
+            # Find the points for the line to go all the way around
+            data <- transform(data, xminv = x,
+                              xmaxv = x + violinwidth * (xmax - x))
+            
+            # Make sure it's sorted properly to draw the outline
+            newdata <- rbind(plyr::arrange(transform(data, x = xminv), y),
+                             plyr::arrange(transform(data, x = xmaxv), -y))
+            
+            # Close the polygon: set first and last point the same
+            # Needed for coord_polar and such
+            newdata <- rbind(newdata, newdata[1,])
+            
+            ggplot2:::ggname("geom_flat_violin", GeomPolygon$draw_panel(newdata, panel_scales, coord))
+          },
+          
+          draw_key = draw_key_polygon,
+          
+          default_aes = aes(weight = 1, colour = "grey20", fill = "white", size = 0.5,
+                            alpha = NA, linetype = "solid"),
+          
+          required_aes = c("x", "y")
+)
+
+```
+
+```{r raincloud plots}
+#creating a ggplot2 aesthetic called 'raincloud' for the half violin ggplot. Then actually creating the plot. This style of plot helps visualize the trends in the data as well as the variability.
+
+library(readr)
+library(tidyr)
+library(ggplot2)
+library(Hmisc)
+library(plyr)
+library(RColorBrewer)
+library(reshape2)
+
+       
+          
+raincloud_theme = theme(
+text = element_text(size = 10),
+axis.title.x = element_text(size = 16),
+axis.title.y = element_text(size = 16),
+axis.text = element_text(size = 14),
+axis.text.x = element_text(angle = 45, vjust = 0.5),
+legend.title=element_text(size=16),
+legend.text=element_text(size=16),
+legend.position = "right",
+plot.title = element_text(lineheight=.8, face="bold", size = 16),
+panel.border = element_blank(),
+panel.grid.minor = element_blank(),
+panel.grid.major = element_blank(),
+axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
+axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))
+#manually create the raincloud theme for ggplot2 using code copied here: (https://neuroconscience.wordpress.com/2018/03/15/introducing-raincloud-plots/?utm_campaign=News&utm_medium=Community&utm_source=DataCamp.com)
+
+
+shrimp$el.nino.la.nina<-factor(shrimp$el.nino.la.nina, levels=c('La Nina','no signal','El Nino'))  
+#turn the oni data into factors, and then order them in order to have them show up in the correct order in the graph
+
+ggplot(data = shrimp, aes(y = shrimp$shrimp.cpue, x = shrimp$el.nino.la.nina, fill=shrimp$el.nino.la.nina)) +
+geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8)+
+  geom_point(aes(y = shrimp$shrimp.cpue, color = shrimp$el.nino.la.nina), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
+  geom_boxplot(width = .1, guides = FALSE, outlier.shape = NA, alpha = 0.5) +
+expand_limits(x = 5.25) +
+guides(fill = FALSE) +
+guides(color = FALSE) +
+scale_color_brewer(palette = "Set1") +
+scale_fill_brewer(palette = "Set1") +
+coord_flip() +
+theme_bw() +
+labs(x= "Oceanic Nino Index phase",y= "catch per unit effort of all shrimp species (#/m2)",title= "")+
+raincloud_theme
+
+
+
+```
+
+```{r figure 3 and 4}
+#figure 3 and 4
+library(ggplot2)
+library(grid)
+library(gridExtra)
+
+
+
+grid.arrange(arrangeGrob (p1,p2,p3,p4,p5,p6, ncol=2, nrow=3, top = textGrob("", rot = 0, vjust = 0)))
+
+ggplot(data = shrimp, aes(y = shrimp$shrimp.cpue, x = shrimp$el.nino.la.nina, fill=shrimp$el.nino.la.nina)) +
+geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8)+
+  geom_point(aes(y = shrimp$shrimp.cpue, color = shrimp$el.nino.la.nina), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
+  geom_boxplot(width = .1, guides = FALSE, outlier.shape = NA, alpha = 0.5) +
+expand_limits(x = 5.25) +
+guides(fill = FALSE) +
+guides(color = FALSE) +
+scale_color_brewer(palette = "Set1") +
+scale_fill_brewer(palette = "Set1") +
+coord_flip() +
+theme_bw() +
+labs(x= "Oceanic Nino Index phase",y= "catch per unit effort of all shrimp species (#/m2)",title= "")+
+raincloud_theme
+```
+
+```{r linear mixed effects model}
+
+
+
+shrimp$el.nino.la.nina<-factor(shrimp$el.nino.la.nina, levels=c('La Nina','no signal','El Nino'))  
+#create a linear mixed effects model in R:
+
+#the original 'lme4' package does not include P values in it's output, a modified version that does output p values was created among other reasons to get around this: 'lmerTest'. I have run both models here to show there is no difference in outputs of 'lmerTest' versus 'lme4' other than the generation of additional metrics such as P value.
+library(lme4)
+
+model.1<-glmer(shrimp.cpue~el.nino.la.nina+(1|depth.target..m.)+(1|time.category), data=shrimp, family=gaussian)
+
+summary(model.1)
+
+
+library(lmerTest)
+model.2<-lmer(shrimp.cpue~el.nino.la.nina+(1|depth.target..m.)+(1|time.category), data=shrimp)
+
+summary(model.2)
+
+
+```
+
+```{r time series model from Mark}
+
+
+
+
+
+
+```
+
+
+
