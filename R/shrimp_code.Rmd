@@ -727,8 +727,12 @@ summary(model.2)
 ```{r time series model from Mark}
 
 #this is for Mark
+
 #new comment by Karl
  
+
+## OK, I'll do it this week.
+
 
 
 ```
