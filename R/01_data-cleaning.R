@@ -15,10 +15,19 @@ clean_data_dir <- here("data", "clean")
 ## raw file name
 raw_file <- "shrimp.master.v3.csv"
 
+## clean file name
+clean_file <- "shrimp_data_for_analysis.csv"
+
 
 #### read data ####
 
 data_raw <- read_csv(file.path(raw_data_dir, raw_file))
 
 
+#### clean data ####
 
+
+
+#### write data ####
+
+data_clean %>% write_csv(file.path(raw_data_dir, clean_file))
