@@ -1,1 +1,1 @@
-This folder contains the cleaned data
+This folder contains the raw data.
