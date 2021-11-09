@@ -88,6 +88,16 @@ data_raw <- read_csv(file.path(raw_data_dir, raw_file))
 
 #### clean data ####
 
+data_raw %>%
+  group_by(genus.species.updated, year) %>%
+  summarise(total_count = sum(number)) %>%
+  # filter(genus.species.updated %in% c("Crangon alaskensis",
+  #                                     "Pandalus eous",
+  #                                     "Pandalus platyceros")) %>%
+  as.data.frame() %>%
+  print() %>%
+  write_csv(file.path(clean_data_dir, "summary_spp_counts_by_year.csv"))
+
 
 
 #### write data ####
