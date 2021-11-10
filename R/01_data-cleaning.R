@@ -69,6 +69,7 @@
 library(here)
 library(readr)
 library(dplyr)
+library(tidyr)
 
 ## data directories
 raw_data_dir <- here("data", "raw")
@@ -80,7 +81,8 @@ raw_file <- "shrimp.master.v3.csv"
 ## clean file name
 clean_file <- "shrimp_data_for_analysis.csv"
 
-
+## genera to include
+genera <- c("Crangon", "Pandalus")
 #### read data ####
 
 data_raw <- read_csv(file.path(raw_data_dir, raw_file))
@@ -88,18 +90,23 @@ data_raw <- read_csv(file.path(raw_data_dir, raw_file))
 
 #### clean data ####
 
-data_raw %>%
-  group_by(genus.species.updated, year) %>%
+# data_raw %>%
+#   group_by(genus.species.updated, year) %>%
+#   summarise(total_count = sum(number)) %>%
+#   as.data.frame() %>%
+#   print() %>%
+#   write_csv(file.path(clean_data_dir, "summary_spp_counts_by_year.csv"))
+
+data_clean <- data_raw %>%
+  separate(genus.species.updated, "genus",
+           extra = "drop", fill = "right") %>%
+  group_by(genus, year) %>%
   summarise(total_count = sum(number)) %>%
-  # filter(genus.species.updated %in% c("Crangon alaskensis",
-  #                                     "Pandalus eous",
-  #                                     "Pandalus platyceros")) %>%
+  filter(genus %in% genera) %>%
+  arrange(genus, year) %>%
   as.data.frame() %>%
-  print() %>%
-  write_csv(file.path(clean_data_dir, "summary_spp_counts_by_year.csv"))
-
-
-
+  print()
+  
 #### write data ####
 
 data_clean %>% write_csv(file.path(raw_data_dir, clean_file))
