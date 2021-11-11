@@ -73,16 +73,16 @@ dates<-data.frame(str_split_fixed(trawl.new$date, "-", 3))
 colnames(dates)<-c("year","month","day")
 
 # add the newly created columns back in
-trawl_cleaned_up<-cbind(trawl.new,dates)
+trawl_cleaned_upr<-cbind(trawl.new,dates)
 
 # create new column of time, year, and depth, which can be used as a unique ID for each 
 # trawl
-trawl_cleaned_up$time.year.depth <- paste(trawl_cleaned_up$`time category`,
-                                          trawl_cleaned_up$`year`,
-                                          trawl_cleaned_up$`depth target`,
+trawl_cleaned_upr$time.year.depth <- paste(trawl_cleaned_upr$`time category`,
+                                          trawl_cleaned_upr$`year`,
+                                          trawl_cleaned_upr$`depth target`,
                                           sep = "_")
 
 #### write trawl finished data ####
 
-trawl_cleaned_up %>% write_csv(file.path(clean_data_dir, clean_file))
+trawl_cleaned_upr %>% write_csv(file.path(clean_data_dir, trawl_cleaned_up))
 
