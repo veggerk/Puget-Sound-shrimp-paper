@@ -84,5 +84,5 @@ trawl_cleaned_up$time.year.depth <- paste(trawl_cleaned_up$`time category`,
 
 #### write trawl finished data ####
 
-trawl_cleaned_up %>% write_csv(file.path(raw_data_dir, clean_file))
+trawl_cleaned_up %>% write_csv(file.path(clean_data_dir, clean_file))
 
