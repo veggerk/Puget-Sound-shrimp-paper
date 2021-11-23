@@ -88,9 +88,25 @@ labs(x= "year",y= "yearly CPUE (#/m2)",title= "Pandalus.spp (common name: pink s
 ```{r anova and tukey test and barplot of all shrimp species}
 #anova and tukey test and barplot of all shrimp species
 rm(list = ls())#clear the workspace
-setwd("/Users/karlveggerby/Desktop/spring 2021/fish ecology/research paper")
-getwd()
-shrimp<-read.csv(file="//Users//karlveggerby//Desktop//spring 2021//fish ecology//research paper//shrimp.master.v3.csv") #load data
+
+library(here)
+library(readr)
+library(dplyr)
+library(tidyr)
+library(stringr)
+
+## data directories
+raw_data_dir <- here("data", "raw")
+clean_data_dir <- here("data", "clean")
+
+## shrimp raw file name
+shrimp.master <- "shrimp.master.v3.csv"
+
+#### read oni data ####
+
+shrimp <- read_csv(file.path(raw_data_dir, shrimp.master))
+
+
 library(ggplot2)
 library(agricolae)
 
