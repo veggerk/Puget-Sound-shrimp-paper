@@ -20,7 +20,7 @@ fig_dir <- here("figures")
 #### base map of Puget Sound ####
 
 ## load USA shape file
-usa_spdf <- readOGR(dsn = here("analysis", "map_files", "USA_adm0.shp"))
+usa_spdf <- readOGR(dsn = here("data", "map_files", "USA_adm0.shp"))
 ## convert to df(ish)
 usa_spdf_fort <- tidy(usa_spdf)
 
