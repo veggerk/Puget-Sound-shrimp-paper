@@ -41,8 +41,8 @@ oni_raw <- read_csv(file.path(raw_data_dir, raw_file_oni))
 #change format of raw ONI data
 oni_tidyr<-pivot_longer(oni_raw, 
         cols=c("DJF","JFM","FMA","MAM","AMJ","MJJ","JJA","JAS","ASO","SON","OND","NDJ",),
-        names_to = "year", 
-        values_to = "months")
+        names_to = "months", 
+        values_to = "oni_values")
   
 
 oni_tidyr %>% write_csv(file.path(clean_data_dir, oni_tidy))
