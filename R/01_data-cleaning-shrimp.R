@@ -73,28 +73,28 @@ library(dplyr)
 library(tidyr)
 
 ## raw file name
-raw_file_name <- "puget_sound_inverts.xlsx"
+raw_file_name_shrimp <- "puget_sound_inverts.xlsx"
 
 ## clean file name
-clean_file_name <- "shrimp_data_for_analysis.csv"
+clean_file_name_shrimp <- "shrimp_data_for_analysis.csv"
 
-## genera to include
+## shrimp genera to include
 genera <- c("Crangon", "Pandalus")
 
 
 #### read data ####
 
-## raw file location
-raw_file_loc <- here("data", "raw", raw_file_name)
+## raw shrimp file location
+raw_file_loc_shrimp <- here("data", "raw", raw_file_name_shrimp)
 
-## raw data
-data_raw <- read_xlsx(raw_file_loc, sheet = "data",
+## raw shrimp data
+data_raw_shrimp <- read_xlsx(raw_file_loc_shrimp, sheet = "data",
                       na = c("", "present", "not specified"))
 
 
 #### clean data ####
 
-data_clean <- data_raw %>%
+data_clean_shrimp <- data_raw_shrimp %>%
   separate(latin_name, "genus",
            extra = "drop", fill = "right") %>%
   group_by(genus, year) %>%
@@ -106,6 +106,6 @@ data_clean <- data_raw %>%
 #### write data ####
 
 ## raw file location
-clean_data_loc <- here("data", "clean", clean_file_name)
+clean_data_loc <- here("data", "clean", clean_file_name_shrimp)
 
-data_clean %>% write_csv(clean_data_loc)
+data_clean_shrimp %>% write_csv(clean_data_loc)
