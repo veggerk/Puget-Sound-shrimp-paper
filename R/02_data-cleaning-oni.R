@@ -1,0 +1,64 @@
+## 02_data-cleaning-oni.R
+
+## This script is for cleaning the raw ONI such that it's able to be merged
+## with the main shrimp data for modeling
+
+## ONI data needs to be reordered so that the previous 12 month average can be calculated
+## and added to the dataset. Trawl data needs to have CPUE calculated and the unique
+## sampling event added so that trawl data can be linked to specific trawls and 
+## associated with meta data
+
+
+
+#### requirements ####
+
+library(here)
+library(readr)
+library(dplyr)
+library(tidyr)
+
+
+## ONI raw file name
+raw_file_loc <- "https://psl.noaa.gov/data/correlation/oni.data"
+
+## ONI clean file name
+oni_tidy <- "oni_data_for_analysis.csv"
+
+## (first year of shrimp data) - 1
+yr_first <- 1998
+
+## last year of shrimp data
+yr_last <- 2019
+
+
+#### read raw ONI data ####
+
+## column names to assign
+col_names <- c("year",
+               "DJF", "JFM", "FMA", "MAM",
+               "AMJ", "MJJ", "JJA", "JAS",
+               "ASO", "SON", "OND", "NDJ")
+
+## raw data
+oni_raw <- raw_file_loc %>%
+  read_tsv(skip = yr_first - 1950 + 1,
+           col_names = FALSE,
+           n_max = yr_last - yr_first + 1) %>%
+  separate(col = X1,
+           into = col_names,
+           sep = "\\s+",
+           convert = TRUE)
+
+
+#### clean data ####
+
+## convert to long/tidy format
+oni_clean <- oni_raw %>%
+  pivot_longer(cols = colnames(oni_raw[-1]),
+               names_to = "months", 
+               values_to = "oni")
+
+## write clean data to file
+oni_tidyr %>% write_csv(file.path(clean_data_dir, oni_tidy))
+
+
