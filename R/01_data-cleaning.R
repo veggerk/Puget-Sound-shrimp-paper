@@ -68,6 +68,7 @@
 
 library(here)
 library(readxl)
+library(readr)
 library(dplyr)
 library(tidyr)
 
@@ -79,6 +80,7 @@ clean_file_name <- "shrimp_data_for_analysis.csv"
 
 ## genera to include
 genera <- c("Crangon", "Pandalus")
+
 
 #### read data ####
 
@@ -92,15 +94,8 @@ data_raw <- read_xlsx(raw_file_loc, sheet = "data",
 
 #### clean data ####
 
-# data_raw %>%
-#   group_by(genus.species.updated, year) %>%
-#   summarise(total_count = sum(number)) %>%
-#   as.data.frame() %>%
-#   print() %>%
-#   write_csv(file.path(clean_data_dir, "summary_spp_counts_by_year.csv"))
-
 data_clean <- data_raw %>%
-  separate(genus.species.updated, "genus",
+  separate(latin_name, "genus",
            extra = "drop", fill = "right") %>%
   group_by(genus, year) %>%
   summarise(total_count = sum(number)) %>%
