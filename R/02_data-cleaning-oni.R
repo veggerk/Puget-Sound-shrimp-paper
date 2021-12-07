@@ -70,7 +70,7 @@ oni_clean <- oni_raw %>%
                values_to = "oni") %>%
   mutate(
     year_lagged = case_when(
-      months %in% col_names[2:4] ~ year,
+      months %in% col_names[2:5] ~ year,
       TRUE ~ year + 1L
     )
   ) %>%

@@ -100,10 +100,9 @@ data_clean <- data_raw %>%
   group_by(genus, year) %>%
   summarise(total_count = sum(number)) %>%
   filter(genus %in% genera) %>%
-  arrange(genus, year) %>%
-  as.data.frame() %>%
-  print()
-  
+  arrange(genus, year)
+
+ 
 #### write data ####
 
 ## raw file location
