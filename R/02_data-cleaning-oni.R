@@ -61,16 +61,26 @@ oni_raw <- here("data", "raw", oni_raw_file) %>%
            convert = TRUE)
 
 
-
 #### clean data ####
 
-## convert to long/tidy format
+## convert to long/tidy format & compute annual ONI values
 oni_clean <- oni_raw %>%
   pivot_longer(cols = colnames(oni_raw[-1]),
                names_to = "months", 
-               values_to = "oni")
+               values_to = "oni") %>%
+  mutate(
+    year_lagged = case_when(
+      months %in% col_names[2:4] ~ year,
+      TRUE ~ year + 1L
+    )
+  ) %>%
+  filter(year_lagged >= 1999) %>%
+  group_by(year_lagged) %>%
+  summarise(oni_annual = mean(oni)) %>%
+  `colnames<-`(c("year", "oni"))
 
+  
 ## write clean data to file
-oni_tidyr %>% write_csv(file.path(clean_data_dir, oni_tidy))
+oni_clean %>% write_csv(here("data", "clean", "oni_data_for_analysis.csv"))
 
 
