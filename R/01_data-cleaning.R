@@ -64,28 +64,30 @@
 ## greater than or equal to 0.5. Values falling between the two numbers are clasified as 
 ## neither condition being present.
 
-#### requirements ####
+#### setup ####
 
 library(here)
-library(readr)
+library(readxl)
 library(dplyr)
 library(tidyr)
 
-## data directories
-raw_data_dir <- here("data", "raw")
-clean_data_dir <- here("data", "clean")
-
 ## raw file name
-raw_file <- "shrimp.master.v3.csv"
+raw_file_name <- "puget_sound_inverts.xlsx"
 
 ## clean file name
-clean_file <- "shrimp_data_for_analysis.csv"
+clean_file_name <- "shrimp_data_for_analysis.csv"
 
 ## genera to include
 genera <- c("Crangon", "Pandalus")
+
 #### read data ####
 
-data_raw <- read_csv(file.path(raw_data_dir, raw_file))
+## raw file location
+raw_file_loc <- here("data", "raw", raw_file_name)
+
+## raw data
+data_raw <- read_xlsx(raw_file_loc, sheet = "data",
+                      na = c("", "present", "not specified"))
 
 
 #### clean data ####
@@ -109,4 +111,7 @@ data_clean <- data_raw %>%
   
 #### write data ####
 
-data_clean %>% write_csv(file.path(raw_data_dir, clean_file))
+## raw file location
+clean_data_loc <- here("data", "clean", clean_file_name)
+
+data_clean %>% write_csv(clean_data_loc)
