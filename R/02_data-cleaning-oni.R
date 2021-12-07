@@ -14,12 +14,16 @@
 
 library(here)
 library(readr)
+library(httr)
 library(dplyr)
 library(tidyr)
 
 
-## ONI raw file name
+## ONI raw file location
 raw_file_loc <- "https://psl.noaa.gov/data/correlation/oni.data"
+
+## ONI raw file name to save
+oni_raw_file <- "raw_ONI_data.txt"
 
 ## ONI clean file name
 oni_tidy <- "oni_data_for_analysis.csv"
@@ -33,6 +37,13 @@ yr_last <- 2019
 
 #### read raw ONI data ####
 
+## scrape raw data from web & save to txt file
+raw_file_loc %>% 
+  GET(config = config(ssl_verifypeer = FALSE)) %>%
+  content("text") %>%
+  cat(file = here("data", "raw", oni_raw_file), sep = "/n")
+
+
 ## column names to assign
 col_names <- c("year",
                "DJF", "JFM", "FMA", "MAM",
@@ -40,7 +51,7 @@ col_names <- c("year",
                "ASO", "SON", "OND", "NDJ")
 
 ## raw data
-oni_raw <- raw_file_loc %>%
+oni_raw <- here("data", "raw", oni_raw_file) %>%
   read_tsv(skip = yr_first - 1950 + 1,
            col_names = FALSE,
            n_max = yr_last - yr_first + 1) %>%
@@ -48,6 +59,7 @@ oni_raw <- raw_file_loc %>%
            into = col_names,
            sep = "\\s+",
            convert = TRUE)
+
 
 
 #### clean data ####
