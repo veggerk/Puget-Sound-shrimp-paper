@@ -72,8 +72,9 @@ library(readr)
 library(dplyr)
 library(tidyr)
 
-## raw file name
+## raw file names
 raw_file_name_shrimp <- "puget_sound_inverts.xlsx"
+raw_file_name_trawl <- "puget_sound_trawlmaster.xlsx"
 
 ## clean file name
 clean_file_name_shrimp <- "shrimp_data_for_analysis.csv"
@@ -84,25 +85,40 @@ genera <- c("Crangon", "Pandalus")
 
 #### read data ####
 
-## raw shrimp file location
+## raw file locations
+raw_file_loc_trawl <- here("data", "raw", raw_file_name_trawl)
 raw_file_loc_shrimp <- here("data", "raw", raw_file_name_shrimp)
+
+## raw trawl data
+data_raw_trawl <- read_xlsx(raw_file_loc_trawl,
+                             na = c("", "NA"))
 
 ## raw shrimp data
 data_raw_shrimp <- read_xlsx(raw_file_loc_shrimp, sheet = "data",
-                      na = c("", "present", "not specified"))
+                             na = c("", "present", "not specified"))
 
 
 #### clean data ####
 
+## trawl lengths for CPUE
+trawl_lengths <- data_raw_trawl %>%
+  filter(year >= 1999) %>%
+  group_by(year) %>%
+  summarise(trawl_dist_total = sum(trawl_dist_m) / 1000)
+
+## shrimp data
 data_clean_shrimp <- data_raw_shrimp %>%
   separate(latin_name, "genus",
            extra = "drop", fill = "right") %>%
   group_by(genus, year) %>%
   summarise(total_count = sum(number)) %>%
   filter(genus %in% genera) %>%
-  arrange(genus, year)
+  arrange(genus, year) %>%
+  left_join(trawl_lengths, by = "year") %>%
+  mutate(cpue = total_count / trawl_dist_total) %>%
+  select(genus, year, cpue)
 
- 
+
 #### write data ####
 
 ## raw file location
