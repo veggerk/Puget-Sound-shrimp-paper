@@ -110,10 +110,16 @@ data_raw_trawl_no_na$time_year_depth <- paste(data_raw_trawl_no_na$`shift`,
                                               data_raw_trawl_no_na$`intended_depth_m`,
                                               sep = "_")
 
+## trawl lengths for CPUE
+trawl_lengths <- data_raw_trawl_no_na %>%
+  filter(year >= 1999) %>%
+  group_by(year) %>%
+  summarise(trawl_dist_total = sum(trawl_dist_m) / 1000)
+
 
 #### write data ####
 
 ## raw file location
 clean_data_loc <- here("data", "clean", clean_file_name_trawl)
 
-data_raw_trawl_no_na %>% write_csv(clean_data_loc)
+trawl_lengths %>% write_csv(clean_data_loc)
