@@ -48,7 +48,7 @@ data_clean_shrimp <- data_raw_shrimp %>%
   summarise(total_count = sum(number)) %>%
   arrange(genus, year) %>%
   left_join(data_clean_trawl, by = "year") %>%
-  mutate(cpue = total_count / data_clean_trawl$trawl_dist_total) %>%
+  mutate(cpue = total_count / trawl_dist_total) %>%
   select(genus, year, cpue)
 
 
