@@ -1,12 +1,9 @@
-## 01_data-cleaning.R
+## 01_data-cleaning-trawl.R
 
-## This script is for cleaning the raw catch and trawl data into a format suitable 
-## for modeling.
-
+## This script is for cleaning up the trawl data.
 
 
 ## descriptions of each column in the dataset
-
 
 ## X1 = a column of numbers representing an original ordering of the dataset that's no 
 ## longer relevant 
@@ -16,7 +13,7 @@
 ## X = a column of numbers representing a previous ordering of the dataset that's no 
 ## longer relevant 
 
-## time.year.depth = a "unique sampling event ID" representing each unique instance where
+## time_year_depth = a "unique sampling event ID" representing each unique instance where
 ## a sample was collected; aka a sampling event. In this case, the year, the time of day 
 ##sampling occurred, and the depth at which the nets were deployed. During each sampling year,
 ## one trawl was conducted at each target depth, during each discreet sampling time, resulting 
@@ -49,13 +46,13 @@
 ## post hoc for analysis. The lumping was redone at a later date, thus this column is 
 ## obsolete.
 
-## number = the number of individuals collected during that sampling event (time.year.depth)
+## number = the number of individuals collected during that sampling event (time_year_depth)
 
 ## CPUE.m2.of.net = the area of the net that was dragged through the water on given sampling
 ## event. (length x width) sometimes the net was trawled for shorter or longer lengths.
 
 ## shrimp.cpue = The catch per unit effort of that group of individuals during that 
-## sampling event (time.year.depth). Units are shrimp per meter squared of net (width of 
+## sampling event (time_year_depth). Units are shrimp per meter squared of net (width of 
 ## net multiplied by the length of the trawl)
 
 ## avg.oni.previous.12.months = The average monthly Oceanic Nino Index score for the previous
@@ -76,81 +73,47 @@ library(dplyr)
 library(tidyr)
 library(lubridate)
 
-## raw file names
-raw_file_name_shrimp <- "puget_sound_inverts.xlsx"
+## raw file name
 raw_file_name_trawl <- "puget_sound_trawlmaster.xlsx"
 
 ## clean file name
-clean_file_name_shrimp <- "shrimp_data_for_analysis.csv"
 clean_file_name_trawl <- "trawl_data_for_analysis.csv"
-## shrimp genera to include
-genera <- c("Crangon", "Pandalus")
 
 
 #### read data ####
 
 ## raw file locations
 raw_file_loc_trawl <- here("data", "raw", raw_file_name_trawl)
-raw_file_loc_shrimp <- here("data", "raw", raw_file_name_shrimp)
 
 ## raw trawl data
 data_raw_trawl <- read_xlsx(raw_file_loc_trawl,
-                             na = c("", "NA"))
-
-## raw shrimp data
-data_raw_shrimp <- read_xlsx(raw_file_loc_shrimp, sheet = "data",
-                             na = c("", "present", "not specified"))
+                            na = c("", "NA"))
 
 
 #### clean data ####
 
-# remove NAs in 2011
-
-data_raw_trawl_no_na<-data_raw_trawl %>% drop_na(trawl_dist_m)
+#3 remove NAs in 2011
+data_raw_trawl_no_na <- data_raw_trawl %>% drop_na(trawl_dist_m)
 
 ## correcting dates in 2007, adding unique sampling event, these changes aren't needed
 ## for the initial analysis, but they may be nice to have later, so I'm keeping them in. 
-correct.date<-ymd('2007-05-12')
-data_raw_trawl_no_na[292:295, 4] <- correct.date
+correct_date <- ymd('2007-05-12')
 
-data_raw_trawl_no_na[292:295, 3] <- 12
+data_raw_trawl_no_na[292:295, "date"] <- correct_date
 
-# create new column of time, year, and depth, which can be used as a unique ID for each 
-# trawl
-data_raw_trawl_no_na$time.year.depth <- paste(data_raw_trawl_no_na$`shift`,
+data_raw_trawl_no_na[292:295, "day"] <- 12
+
+## create new column of time, year, and depth, which can be used as a unique ID
+## for each trawl
+data_raw_trawl_no_na$time_year_depth <- paste(data_raw_trawl_no_na$`shift`,
                                               data_raw_trawl_no_na$`year`,
                                               data_raw_trawl_no_na$`intended_depth_m`,
-                                           sep = "_")
-## trawl lengths for CPUE
-trawl_lengths <- data_raw_trawl_no_na %>%
-  filter(year >= 1999) %>%
-  group_by(year) %>%
-  summarise(trawl_dist_total = sum(trawl_dist_m) / 1000)
-
-
-
-## shrimp data
-data_clean_shrimp <- data_raw_shrimp %>%
-  separate(latin_name, "genus",
-           extra = "drop", fill = "right") %>%
-  group_by(genus, year) %>%
-  summarise(total_count = sum(number)) %>%
-  filter(genus %in% genera) %>%
-  arrange(genus, year) %>%
-  left_join(trawl_lengths, by = "year") %>%
-  mutate(cpue = total_count / trawl_dist_total) %>%
-  select(genus, year, cpue)
+                                              sep = "_")
 
 
 #### write data ####
 
 ## raw file location
-clean_data_loc <- here("data", "clean", clean_file_name_shrimp)
-
-data_clean_shrimp %>% write_csv(clean_data_loc)
-
-
-
 clean_data_loc <- here("data", "clean", clean_file_name_trawl)
 
-trawl_lengths %>% write_csv(clean_data_loc)
+data_raw_trawl_no_na %>% write_csv(clean_data_loc)
