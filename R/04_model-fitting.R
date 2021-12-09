@@ -184,6 +184,10 @@ aicc <- c(mod_1$AICc, mod_2$AICc, mod_3$AICc, mod_4$AICc,
           mod_5$AICc, mod_6$AICc, mod_7$AICc, mod_8$AICc)
 names(aicc) <- paste0("mod_", seq(8))
 
+aicc %>%
+  sort() %>%
+  round(1) %>%
+  magrittr::subtract(min(.))
 
 
 
