@@ -73,7 +73,7 @@ oni_clean <- oni_raw %>%
       TRUE ~ year + 1L
     )
   ) %>%
-  filter(year_lagged >= 1999) %>%
+  filter(year_lagged >= yr_first + 1 & year_lagged <= yr_last) %>%
   group_by(year_lagged) %>%
   summarise(oni_annual = mean(oni)) %>%
   `colnames<-`(c("year", "oni"))
