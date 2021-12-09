@@ -1,6 +1,9 @@
 ## 01_data-cleaning.R
 
-## This script is for cleaning the raw catch data into a format suitable for modeling.
+## This script is for cleaning the raw catch and trawl data into a format suitable 
+## for modeling.
+
+
 
 ## descriptions of each column in the dataset
 
@@ -71,6 +74,7 @@ library(readxl)
 library(readr)
 library(dplyr)
 library(tidyr)
+library(lubridate)
 
 ## raw file names
 raw_file_name_shrimp <- "puget_sound_inverts.xlsx"
@@ -78,7 +82,7 @@ raw_file_name_trawl <- "puget_sound_trawlmaster.xlsx"
 
 ## clean file name
 clean_file_name_shrimp <- "shrimp_data_for_analysis.csv"
-
+clean_file_name_trawl <- "trawl_data_for_analysis.csv"
 ## shrimp genera to include
 genera <- c("Crangon", "Pandalus")
 
@@ -100,11 +104,30 @@ data_raw_shrimp <- read_xlsx(raw_file_loc_shrimp, sheet = "data",
 
 #### clean data ####
 
+# remove NAs in 2011
+
+data_raw_trawl_no_na<-data_raw_trawl %>% drop_na(trawl_dist_m)
+
+## correcting dates in 2007, adding unique sampling event, these changes aren't needed
+## for the initial analysis, but they may be nice to have later, so I'm keeping them in. 
+correct.date<-ymd('2007-05-12')
+data_raw_trawl_no_na[292:295, 4] <- correct.date
+
+data_raw_trawl_no_na[292:295, 3] <- 12
+
+# create new column of time, year, and depth, which can be used as a unique ID for each 
+# trawl
+data_raw_trawl_no_na$time.year.depth <- paste(data_raw_trawl_no_na$`shift`,
+                                              data_raw_trawl_no_na$`year`,
+                                              data_raw_trawl_no_na$`intended_depth_m`,
+                                           sep = "_")
 ## trawl lengths for CPUE
-trawl_lengths <- data_raw_trawl %>%
+trawl_lengths <- data_raw_trawl_no_na %>%
   filter(year >= 1999) %>%
   group_by(year) %>%
   summarise(trawl_dist_total = sum(trawl_dist_m) / 1000)
+
+
 
 ## shrimp data
 data_clean_shrimp <- data_raw_shrimp %>%
@@ -125,3 +148,9 @@ data_clean_shrimp <- data_raw_shrimp %>%
 clean_data_loc <- here("data", "clean", clean_file_name_shrimp)
 
 data_clean_shrimp %>% write_csv(clean_data_loc)
+
+
+
+clean_data_loc <- here("data", "clean", clean_file_name_trawl)
+
+trawl_lengths %>% write_csv(clean_data_loc)
