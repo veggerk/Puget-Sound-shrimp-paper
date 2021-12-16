@@ -1,4 +1,4 @@
-## 02_data-cleaning-oni.R
+## 03_data-cleaning-oni.R
 
 ## This script is for cleaning the raw ONI such that it's able to be merged
 ## with the main shrimp data for modeling
@@ -7,7 +7,6 @@
 ## and added to the dataset. Trawl data needs to have CPUE calculated and the unique
 ## sampling event added so that trawl data can be linked to specific trawls and 
 ## associated with meta data
-
 
 
 #### requirements ####
@@ -74,7 +73,7 @@ oni_clean <- oni_raw %>%
       TRUE ~ year + 1L
     )
   ) %>%
-  filter(year_lagged >= 1999) %>%
+  filter(year_lagged >= yr_first + 1 & year_lagged <= yr_last) %>%
   group_by(year_lagged) %>%
   summarise(oni_annual = mean(oni)) %>%
   `colnames<-`(c("year", "oni"))
