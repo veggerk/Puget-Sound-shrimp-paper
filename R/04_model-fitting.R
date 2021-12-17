@@ -201,7 +201,7 @@ aicc %>%
 #### plot fits ####
 
 pdf(file = here("figures", "model_fit.pdf"),
-    height = 4, width = 6)
+    height = 5, width = 6)
 
 par(mai = c(0.9, 0.9, 0.1, 0.1),
     omi = rep(0.1, 4))
