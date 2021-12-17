@@ -35,6 +35,7 @@ shrimp_trans <- shrimp_data %>%
   pivot_wider(names_from = genus, values_from = cpue) %>%
   select(-year) %>%
   log() %>%
+  scale() %>%
   t()
 
 ## number of time series
@@ -138,6 +139,9 @@ QQ <- matrix("q")
 ## obs model
 ZZ <- matrix(1, nrow = nn, ncol = 1)
 
+# AA <- matrix(list(0), nrow = 2, ncol = 1)
+# AA[2] <- "P"
+
 mod_list <- list(
   B = BB,
   U = UU,
@@ -189,5 +193,8 @@ aicc %>%
   round(1) %>%
   magrittr::subtract(min(.))
 
+## mod_7 mod_6 mod_2 mod_8 mod_3 mod_1 mod_4 mod_5 
+##   0.0   1.4   1.5   3.4   4.2  10.9  12.6  15.1 
 
+## model 7 is the most parsimonious
 
