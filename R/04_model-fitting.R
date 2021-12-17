@@ -198,3 +198,33 @@ aicc %>%
 
 ## model 7 is the most parsimonious
 
+#### plot fits ####
+
+pdf(file = here("figures", "model_fit.pdf"),
+    height = 4, width = 6)
+
+par(mai = c(0.9, 0.9, 0.1, 0.1),
+    omi = rep(0.1, 4))
+
+## ts of years
+years <- shrimp_data %>%
+  pivot_wider(names_from = genus, values_from = cpue) %>%
+  select(year) %>%
+  unlist()
+
+## plot data and fit
+matplot(years, t(shrimp_trans),
+        type = "o", lty = "solid", pch = 16, las = 1,
+        xlab = "Year", ylab = "Standardized log(CPUE)",
+        col = c("blue", "dodgerblue"))
+lines(years, as.vector(mod_7$states))
+lines(years, as.vector(mod_7$states + 2 * mod_7$states.se),
+      col = "gray")
+lines(years, as.vector(mod_7$states - 2 * mod_7$states.se),
+      col = "gray")
+text(1999, 1.5, expression(italic(Crangon)),
+     pos = 4, col = "blue")
+text(1999, 1.2, expression(italic(Pandalus)),
+     pos = 4, col = "dodgerblue")
+
+dev.off()
