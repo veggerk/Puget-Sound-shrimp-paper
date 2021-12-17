@@ -25,7 +25,7 @@ genera <- c("Crangon", "Pandalus")
 #### read data ####
 
 ## raw file locations
-clean_file_loc_trawl <- here("data", "clean", raw_file_name_trawl)
+clean_file_loc_trawl <- here("data", "clean", clean_file_name_trawl)
 raw_file_loc_shrimp <- here("data", "raw", raw_file_name_shrimp)
 
 ## raw trawl data
@@ -39,19 +39,13 @@ data_raw_shrimp <- read_xlsx(raw_file_loc_shrimp, sheet = "data",
 
 #### clean data ####
 
-## trawl lengths for CPUE
-trawl_lengths <- data_clean_trawl %>%
-  filter(year >= 1999) %>%
-  group_by(year) %>%
-  summarise(trawl_dist_total = sum(trawl_dist_m) / 1000)
-
 ## shrimp data
 data_clean_shrimp <- data_raw_shrimp %>%
   separate(latin_name, "genus",
            extra = "drop", fill = "right") %>%
+  filter(genus %in% genera) %>%
   group_by(genus, year) %>%
   summarise(total_count = sum(number)) %>%
-  filter(genus %in% genera) %>%
   arrange(genus, year) %>%
   left_join(data_clean_trawl, by = "year") %>%
   mutate(cpue = total_count / trawl_dist_total) %>%
