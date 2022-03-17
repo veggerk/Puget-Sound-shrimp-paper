@@ -16,7 +16,7 @@ clean_data_dir <- here("data", "clean")
 
 ## clean file names
 clean_file_shrimp <- "shrimp_data_for_analysis.csv"
-clean_file_oni <- "oni_data_for_analysis.csv"
+clean_file_pdo <- "pdo_data_for_analysis.csv"
 
 
 #### read data ####
@@ -24,8 +24,8 @@ clean_file_oni <- "oni_data_for_analysis.csv"
 ## cleaned shrimp data
 shrimp_data <- read_csv(here(clean_data_dir, clean_file_shrimp))
 
-## ONI data
-oni_data <- read_csv(here(clean_data_dir, clean_file_oni))
+## pdo data
+pdo_data <- read_csv(here(clean_data_dir, clean_file_pdo))
 
 
 #### transform data ####
@@ -97,14 +97,14 @@ mod_list$U = UU
 mod_3 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 4: RW with shared ONI & unique states ####
+#### model 4: RW with shared pdo & unique states ####
 
 ## process model
 UU <- matrix(0, nrow = nn)
 
 CC <- matrix("C", nrow = 2)
 
-cc <- matrix(oni_data$oni, nrow = 1)
+cc <- matrix(pdo_data$pdo, nrow = 1)
 
 mod_list$U = UU
 mod_list$C = CC
@@ -113,7 +113,7 @@ mod_list$c = cc
 mod_4 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 5: RW with unique ONI & unique states ####
+#### model 5: RW with unique pdo & unique states ####
 
 ## process model
 CC <- matrix(c("1", "2"), nrow = 2)
@@ -166,14 +166,14 @@ mod_list$U = UU
 mod_7 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 8: RW with ONI & shared state ####
+#### model 8: RW with PDO & shared state ####
 
 ## process model
 UU <- matrix(0)
 
 CC <- matrix("C")
 
-cc <- matrix(oni_data$oni, nrow = 1)
+cc <- matrix(pdo_data$pdo, nrow = 1)
 
 mod_list$U = UU
 mod_list$C = CC
@@ -193,14 +193,14 @@ aicc %>%
   round(1) %>%
   magrittr::subtract(min(.))
 
-## mod_7 mod_6 mod_2 mod_8 mod_3 mod_1 mod_4 mod_5 
-##   0.0   1.4   1.5   3.4   4.2  10.9  12.6  15.1 
+## mod_1     mod_2     mod_3     mod_4     mod_5     mod_6     mod_7     mod_8 
+## 105.63036  96.20968  98.90300  95.51899  98.25150  96.08183  94.67062  93.91413 
 
-## model 7 is the most parsimonious
+## model 8 is the most parsimonious
 
 #### plot fits ####
 
-pdf(file = here("figures", "model_fit.pdf"),
+pdf(file = here("figures", "model_fit_PDO.pdf"),
     height = 5, width = 6)
 
 par(mai = c(0.9, 0.9, 0.1, 0.1),
@@ -217,10 +217,10 @@ matplot(years, t(shrimp_trans),
         type = "o", lty = "solid", pch = 16, las = 1,
         xlab = "Year", ylab = "Standardized log(CPUE)",
         col = c("blue", "dodgerblue"))
-lines(years, as.vector(mod_7$states))
-lines(years, as.vector(mod_7$states + 2 * mod_7$states.se),
+lines(years, as.vector(mod_8$states))
+lines(years, as.vector(mod_8$states + 2 * mod_8$states.se),
       col = "gray")
-lines(years, as.vector(mod_7$states - 2 * mod_7$states.se),
+lines(years, as.vector(mod_8$states - 2 * mod_8$states.se),
       col = "gray")
 text(1999, 1.5, expression(italic(Crangon)),
      pos = 4, col = "blue")
