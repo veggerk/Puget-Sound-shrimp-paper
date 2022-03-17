@@ -26,8 +26,8 @@ usa_spdf_fort <- tidy(usa_spdf)
 
 
 ## draw puget sound
-puget_sound <- ggplot(usa_spdf_fort, aes(x = long, y = lat, group = group)) +
-  geom_polygon(color = "gray70", fill = rgb(251, 234, 194, max = 255)) +
+puget_sound<-ggplot(usa_spdf_fort, aes(x = long, y = lat, group = group)) +
+  geom_polygon(color = "gray70", fill = "#d9d9d9") +
   ylab("Latitude") +
   xlab("Longitude") +
   coord_fixed(xlim = c(-123.3, -122), ylim = c(46.95, 48.8), ratio = 1.3) +
@@ -69,7 +69,7 @@ annotate("text",
 
 ## draw port_madison inset
 port_madison <- ggplot(usa_spdf_fort, aes(x = long, y = lat, group = group)) +
-  geom_polygon(color = "gray70", fill = rgb(251, 234, 194, max = 255)) +
+  geom_polygon(color = "gray70", fill = "#d9d9d9",) +
   coord_fixed(xlim = c(-122.60, -122.43), ylim = c(47.67, 47.79),  ratio = 1.3) +
   theme(plot.background = element_rect(fill = "white"),
         panel.background = element_rect(fill="white", color = "black"),
