@@ -109,4 +109,3 @@ temporal_patterns<-p4/p5/p6
 
 ggsave(plot = temporal_patterns,filename = "figures/temporal patterns.pdf")
 
-
