@@ -17,7 +17,7 @@ clean_data_dir <- here("data", "clean")
 ## clean file names
 clean_file_shrimp <- "shrimp_data_for_analysis.csv"
 clean_file_pdo <- "pdo_data_for_analysis.csv"
-
+clean_file_oni <- "oni_data_for_analysis.csv"
 
 #### read data ####
 
@@ -27,6 +27,10 @@ shrimp_data <- read_csv(here(clean_data_dir, clean_file_shrimp))
 ## pdo data
 pdo_data <- read_csv(here(clean_data_dir, clean_file_pdo))
 
+## ONI data
+oni_data <- read_csv(here(clean_data_dir, clean_file_oni))
+
+all_data<-rbind(pdo_data$pdo,oni_data$oni)
 
 #### transform data ####
 
@@ -182,19 +186,38 @@ mod_list$c = cc
 mod_8 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
+#### model 9: RW with PDO, ENSO & shared state ####
+
+## process model
+UU <- matrix(0)
+
+CC <- matrix(c("PDO","ENSO"),nrow=1,ncol=2)
+
+cc <- all_data
+
+mod_list$U = UU
+mod_list$C = CC
+mod_list$c = cc
+
+mod_9 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
 #### model selection ####
 
 aicc <- c(mod_1$AICc, mod_2$AICc, mod_3$AICc, mod_4$AICc,
-          mod_5$AICc, mod_6$AICc, mod_7$AICc, mod_8$AICc)
-names(aicc) <- paste0("mod_", seq(8))
+          mod_5$AICc, mod_6$AICc, mod_7$AICc, mod_8$AICc, mod_9$AICc)
+names(aicc) <- paste0("mod_", seq(9))
 
 aicc %>%
   sort() %>%
   round(1) %>%
   magrittr::subtract(min(.))
 
-## mod_1     mod_2     mod_3     mod_4     mod_5     mod_6     mod_7     mod_8 
-## 105.63036  96.20968  98.90300  95.51899  98.25150  96.08183  94.67062  93.91413 
+## mod_1     mod_2     mod_3     mod_4     mod_5     mod_6     mod_7     mod_8       mod_9
+## 105.63036  96.20968  98.90300  95.51899  98.25150  96.08183  94.67062  93.91413 94.31672
+
+# mod_8 mod_9 mod_7 mod_4 mod_6 mod_2 mod_5 mod_3 mod_1 
+# 0.0   0.4   0.8   1.6   2.2   2.3   4.4   5.0  11.7 
 
 ## model 8 is the most parsimonious
 
