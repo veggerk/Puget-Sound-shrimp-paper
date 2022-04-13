@@ -201,23 +201,50 @@ mod_list$c = cc
 
 mod_9 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
+#### model 10: RW with ONI & shared state ####
+
+## process model
+UU <- matrix(0)
+
+CC <- matrix("C")
+
+cc <- matrix(oni_data$oni, nrow = 1)
+
+mod_list$U = UU
+mod_list$C = CC
+mod_list$c = cc
+
+mod_10 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
+#### model 11: RW with shared ONI & unique states ####
+
+## process model
+UU <- matrix(0, nrow = nn)
+
+CC <- matrix("C", nrow = 2)
+
+cc <- matrix(oni_data$oni, nrow = 1)
+
+mod_list$U = UU
+mod_list$C = CC
+mod_list$c = cc
+
+mod_11 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 #### model selection ####
 
 aicc <- c(mod_1$AICc, mod_2$AICc, mod_3$AICc, mod_4$AICc,
-          mod_5$AICc, mod_6$AICc, mod_7$AICc, mod_8$AICc, mod_9$AICc)
-names(aicc) <- paste0("mod_", seq(9))
+          mod_5$AICc, mod_6$AICc, mod_7$AICc, mod_8$AICc, mod_9$AICc, mod_10$AICc, mod_11$AICc)
+names(aicc) <- paste0("mod_", seq(11))
 
 aicc %>%
   sort() %>%
   round(1) %>%
   magrittr::subtract(min(.))
 
-## mod_1     mod_2     mod_3     mod_4     mod_5     mod_6     mod_7     mod_8       mod_9
-## 105.63036  96.20968  98.90300  95.51899  98.25150  96.08183  94.67062  93.91413 94.31672
-
-# mod_8 mod_9 mod_7 mod_4 mod_6 mod_2 mod_5 mod_3 mod_1 
-# 0.0   0.4   0.8   1.6   2.2   2.3   4.4   5.0  11.7 
+# mod_8  mod_9  mod_7  mod_4  mod_6  mod_2 mod_10 mod_11  mod_5  mod_3  mod_1 
+# 0.0    0.4    0.8    1.6    2.2    2.3    4.2    4.2    4.4    5.0   11.7 
 
 ## model 8 is the most parsimonious
 
