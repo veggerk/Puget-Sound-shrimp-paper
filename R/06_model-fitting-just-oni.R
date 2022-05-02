@@ -200,7 +200,7 @@ aicc %>%
 
 #### plot fits ####
 
-pdf(file = here("figures", "model_fit.pdf"),
+pdf(file = here("figures", "model_fit_ONI.pdf"),
     height = 5, width = 6)
 
 par(mai = c(0.9, 0.9, 0.1, 0.1),
