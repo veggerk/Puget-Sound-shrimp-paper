@@ -36,7 +36,7 @@ all_data<-rbind(pdo_data$pdo,oni_data$oni)
 
 ## shrimp data for MARSS
 shrimp_trans <- shrimp_data %>%
-  pivot_wider(names_from = genus, values_from = cpue) %>%
+  pivot_wider(names_from = latin_name, values_from = cpue) %>%
   select(-year) %>%
   log() %>%
   scale() %>%
