@@ -66,20 +66,19 @@ annotate("text",
            y = 47.6,
            size = 1,
            color = "black")+ 
-  annotation_scale(
-             location = "tr",
-             bar_cols = c("grey60", "white"),
-             text_family = "ArcherPro Book", plot_unit = "km") +
-  annotation_north_arrow(
+annotation_north_arrow(
     location = "tr", which_north = "grid",
     pad_x = unit(0.1, "in"), pad_y = unit(0.4, "in"),
     style = north_arrow_orienteering(
       fill = c("grey40", "white"),
       line_col = "grey20",
-      text_family = "ArcherPro Book"))
-
-
-
+      text_family = "ArcherPro Book"))+
+ annotation_scale(
+   location = "tr",
+   bar_cols = c("grey60", "white"),
+   plot_unit = "mi")
+  
+puget_sound
 ## draw port_madison inset
 port_madison <- ggplot(usa_spdf_fort, aes(x = long, y = lat, group = group)) +
   geom_polygon(color = "gray50", fill = "#d9d9d9",) +
@@ -92,7 +91,7 @@ port_madison <- ggplot(usa_spdf_fort, aes(x = long, y = lat, group = group)) +
         text = element_blank(),
         axis.ticks = element_blank(),
         plot.margin = unit(rep(0.1, 4), "cm"))+
-  annotate("text", label = "Port Madison", x = -122.50, y = 47.73, size = 4, color = "black") #+ 
+  annotate("text", label = "Port Madison", x = -122.50, y = 47.73, size = 4, color = "black") 
 
 
 
