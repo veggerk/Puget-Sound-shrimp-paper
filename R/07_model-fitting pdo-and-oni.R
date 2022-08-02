@@ -57,7 +57,7 @@ BB <- diag(nn)
 UU <- matrix(0, nrow = nn)
 
 QQ <- matrix(list(0), nn, nn)
-diag(QQ) <- c("q", "q")
+diag(QQ) <- rep("q",nn)
 
 ## obs model
 ZZ <- diag(nn)
@@ -65,7 +65,7 @@ ZZ <- diag(nn)
 AA <- matrix(0, nrow = nn)
 
 RR <- matrix(list(0), nn, nn)
-diag(RR) <- c("r", "r")
+diag(RR) <- rep("r",nn)
 
 mod_list <- list(
   B = BB,
@@ -94,7 +94,7 @@ mod_2 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 #### model 3: RW with unique biases & unique states ####
 
 ## process model
-UU <- matrix(c("1", "2"), nrow = nn)
+UU <- matrix(c("1", "2","3"), nrow = nn)
 
 mod_list$U = UU
 
@@ -106,7 +106,7 @@ mod_3 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 ## process model
 UU <- matrix(0, nrow = nn)
 
-CC <- matrix("C", nrow = 2)
+CC <- matrix("C", nrow = 3)
 
 cc <- matrix(pdo_data$pdo, nrow = 1)
 
@@ -120,14 +120,28 @@ mod_4 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 #### model 5: RW with unique pdo & unique states ####
 
 ## process model
-CC <- matrix(c("1", "2"), nrow = 2)
+CC <- matrix(c("1", "2","3"), nrow = 3)
 
 mod_list$C = CC
 
 mod_5 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 6: RW with no bias & shared state ####
+#### model 6: RW with unique oni & unique states ####
+
+## process model
+
+cc <- matrix(oni_data$oni, nrow = 1)
+
+CC <- matrix(c("1", "2","3"), nrow = 3)
+
+mod_list$C = CC
+mod_list$c = cc
+
+mod_6 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
+#### model 7: RW with no bias & shared state ####
 
 ## process model
 BB <- matrix(1)
@@ -157,20 +171,20 @@ mod_list <- list(
   R = RR
 )
 
-mod_6 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_7 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 7: RW with bias & shared state ####
+#### model 8: RW with bias & shared state ####
 
 ## process model
 UU <- matrix("u")
 
 mod_list$U = UU
 
-mod_7 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_8 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 8: RW with PDO & shared state ####
+#### model 9: RW with PDO & shared state ####
 
 ## process model
 UU <- matrix(0)
@@ -183,23 +197,8 @@ mod_list$U = UU
 mod_list$C = CC
 mod_list$c = cc
 
-mod_8 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
-
-
-#### model 9: RW with PDO, ENSO & shared state ####
-
-## process model
-UU <- matrix(0)
-
-CC <- matrix(c("PDO","ENSO"),nrow=1,ncol=2)
-
-cc <- all_data
-
-mod_list$U = UU
-mod_list$C = CC
-mod_list$c = cc
-
 mod_9 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
 
 #### model 10: RW with ONI & shared state ####
 
@@ -217,14 +216,14 @@ mod_list$c = cc
 mod_10 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 11: RW with shared ONI & unique states ####
+#### model 11: RW with PDO, ENSO & shared state ####
 
 ## process model
-UU <- matrix(0, nrow = nn)
+UU <- matrix(0)
 
-CC <- matrix("C", nrow = 2)
+CC <- matrix(c("PDO","ENSO"),nrow=1,ncol=2)
 
-cc <- matrix(oni_data$oni, nrow = 1)
+cc <- all_data
 
 mod_list$U = UU
 mod_list$C = CC
@@ -232,25 +231,97 @@ mod_list$c = cc
 
 mod_11 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
+
+
+
+
+#### model 12: RW with ONI & shared state ####
+
+## process model
+UU <- matrix(0)
+
+CC <- matrix("C")
+
+cc <- matrix(oni_data$oni, nrow = 1)
+
+mod_list$U = UU
+mod_list$C = CC
+mod_list$c = cc
+
+mod_12 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
+#### model 13: RW with shared ONI & unique states ####
+
+## process model
+UU <- matrix(0, nrow = nn)
+
+CC <- matrix("C", nrow = 3)
+
+cc <- matrix(oni_data$oni, nrow = 1)
+
+ZZ<-diag(nn)
+BB<-diag(nn)
+QQ <- matrix(list(0), nn, nn)
+diag(QQ) <- rep("q",nn)
+
+mod_list$U = UU
+mod_list$C = CC
+mod_list$c = cc
+mod_list$Z = ZZ
+mod_list$B = BB
+mod_list$Q = QQ
+
+
+
+mod_13 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
+#### model 14: RW with PDO, ENSO & unique state ####
+
+## process model
+UU <- matrix(0, nrow = 3)
+CC <- matrix(c("PDO.1", "PDO.2", "PDO.3", "ONI.1", "ONI.2", "ONI.3"), nrow = 3, ncol = 2)
+
+cc <- all_data
+ZZ<-diag(3)
+BB<-diag(3)
+
+QQ <- matrix(list(0), nn, nn)
+diag(QQ) <- rep("q",nn)
+
+mod_list$Q = QQ
+mod_list$B = BB
+mod_list$Z = ZZ
+mod_list$U = UU
+mod_list$C = CC
+mod_list$c = cc
+
+mod_14 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
 #### model selection ####
 
 aicc <- c(mod_1$AICc, mod_2$AICc, mod_3$AICc, mod_4$AICc,
-          mod_5$AICc, mod_6$AICc, mod_7$AICc, mod_8$AICc, mod_9$AICc, mod_10$AICc, mod_11$AICc)
-names(aicc) <- paste0("mod_", seq(11))
+          mod_5$AICc, mod_6$AICc, mod_7$AICc, mod_8$AICc, 
+          mod_9$AICc, mod_10$AICc, mod_11$AICc, mod_12$AICc, 
+          mod_13$AICc, mod_14$AICc)
+names(aicc) <- paste0("mod_", seq(14))
 
 aicc %>%
   sort() %>%
   round(1) %>%
   magrittr::subtract(min(.))
 
-# mod_8  mod_9  mod_7  mod_4  mod_6  mod_2 mod_10 mod_11  mod_5  mod_3  mod_1 
-# 0.0    0.4    0.8    1.6    2.2    2.3    4.2    4.2    4.4    5.0   11.7 
+# mod_8 mod_11  mod_9  mod_2  mod_7  mod_4 mod_10 mod_12  mod_3  mod_5 mod_14  mod_1 mod_13  mod_6 
+# 0.0    1.1    2.1    4.7    5.0    5.9    6.8    6.8    9.8   11.1   16.4   22.8   24.2   29.1 
 
-## model 8 is the most parsimonious
-
+## model 8 and 11 are the top models 
+mod_8
+mod_11
 #### plot fits ####
 
-pdf(file = here("figures", "model_fit_PDO.pdf"),
+pdf(file = here("figures", "model_fit_PDO_and_ENSO.pdf"),
     height = 5, width = 6)
 
 par(mai = c(0.9, 0.9, 0.1, 0.1),
@@ -258,23 +329,25 @@ par(mai = c(0.9, 0.9, 0.1, 0.1),
 
 ## ts of years
 years <- shrimp_data %>%
-  pivot_wider(names_from = genus, values_from = cpue) %>%
+  pivot_wider(names_from = latin_name, values_from = cpue) %>%
   select(year) %>%
   unlist()
 
 ## plot data and fit
 matplot(years, t(shrimp_trans),
         type = "o", lty = "solid", pch = 16, las = 1,
-        xlab = "Year", ylab = "Standardized log(CPUE)",
-        col = c("blue", "dodgerblue"))
-lines(years, as.vector(mod_8$states))
-lines(years, as.vector(mod_8$states + 2 * mod_8$states.se),
+        xlab = "Year", ylab = "Standardized log (CPUE)",
+        col = c("#e41a1c", "#377eb8","#4daf4a"))
+lines(years, as.vector(mod_11$states))
+lines(years, as.vector(mod_11$states + 2 * mod_11$states.se),
       col = "gray")
-lines(years, as.vector(mod_8$states - 2 * mod_8$states.se),
+lines(years, as.vector(mod_11$states - 2 * mod_11$states.se),
       col = "gray")
-text(1999, 1.5, expression(italic(Crangon)),
-     pos = 4, col = "blue")
-text(1999, 1.2, expression(italic(Pandalus)),
-     pos = 4, col = "dodgerblue")
+text(1999, 1.5, expression(italic("Northern crangon shrimp")),
+     pos = 4, col = "#e41a1c")
+text(1999, 1.2, expression(italic("Pink shrimp")),
+     pos = 4, col = "#377eb8")
+text(1999, 0.9, expression(italic("Spot shrimp")),
+     pos = 4, col = "#4daf4a")
 
 dev.off()

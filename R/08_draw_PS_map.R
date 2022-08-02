@@ -12,7 +12,7 @@ library(rgdal)
 library(broom)
 library(ggplot2)
 library(cowplot)
-library(ggspacial)
+library(ggspatial)
 
 
 ## figure save dir
@@ -72,11 +72,8 @@ annotation_north_arrow(
     style = north_arrow_orienteering(
       fill = c("grey40", "white"),
       line_col = "grey20",
-      text_family = "ArcherPro Book"))+
- annotation_scale(
-   location = "tr",
-   bar_cols = c("grey60", "white"),
-   plot_unit = "mi")
+      text_family = "ArcherPro Book"))
+
   
 puget_sound
 ## draw port_madison inset
