@@ -234,7 +234,6 @@ mod_11 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
 
-
 #### model 12: RW with ONI & shared state ####
 
 ## process model
@@ -319,13 +318,14 @@ aicc %>%
 ## model 8 and 11 are the top models 
 mod_8
 mod_11
-#### plot fits ####
 
-pdf(file = here("figures", "model_fit_PDO_and_ENSO.pdf"),
-    height = 5, width = 6)
+#### plot fits model with ONI and PDO####
+
+pdf(file = here("figures", "model_fits.pdf"),
+    height = 6, width =10)
 
 par(mai = c(0.9, 0.9, 0.1, 0.1),
-    omi = rep(0.1, 4))
+    omi = rep(0.1, 4),mfrow=c(1,2))
 
 ## ts of years
 years <- shrimp_data %>%
@@ -338,11 +338,7 @@ matplot(years, t(shrimp_trans),
         type = "o", lty = "solid", pch = 16, las = 1,
         xlab = "Year", ylab = "Standardized log (CPUE)",
         col = c("#e41a1c", "#377eb8","#4daf4a"))
-lines(years, as.vector(mod_11$states))
-lines(years, as.vector(mod_11$states + 2 * mod_11$states.se),
-      col = "gray")
-lines(years, as.vector(mod_11$states - 2 * mod_11$states.se),
-      col = "gray")
+lines(years, as.vector(mod_11$states),col="black")
 text(1999, 1.5, expression(italic("Northern crangon shrimp")),
      pos = 4, col = "#e41a1c")
 text(1999, 1.2, expression(italic("Pink shrimp")),
@@ -350,4 +346,15 @@ text(1999, 1.2, expression(italic("Pink shrimp")),
 text(1999, 0.9, expression(italic("Spot shrimp")),
      pos = 4, col = "#4daf4a")
 
+#### plot fits top model ####
+
+## plot data and fit
+matplot(years, t(shrimp_trans),
+        type = "o", lty = "solid", pch = 16, las = 1,
+        xlab = "", ylab = "",
+        col = c("#e41a1c", "#377eb8","#4daf4a"))
+lines(years, as.vector(mod_8$states),col="black")
+
+
 dev.off()
+
