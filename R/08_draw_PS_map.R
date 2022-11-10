@@ -12,6 +12,8 @@ library(rgdal)
 library(broom)
 library(ggplot2)
 library(cowplot)
+library(ggspatial)
+
 
 ## figure save dir
 fig_dir <- here("figures")
@@ -27,12 +29,12 @@ usa_spdf_fort <- tidy(usa_spdf)
 
 ## draw puget sound
 puget_sound<-ggplot(usa_spdf_fort, aes(x = long, y = lat, group = group)) +
-  geom_polygon(color = "gray70", fill = "#d9d9d9") +
+  geom_polygon(color = "gray50", fill = "#d9d9d9") +
   ylab("Latitude") +
   xlab("Longitude") +
   coord_fixed(xlim = c(-123.3, -122), ylim = c(46.95, 48.8), ratio = 1.3) +
   theme(plot.background = element_rect(fill = "white"),
-        panel.background = element_rect(fill="white", color = "black"),
+        panel.background = element_rect(fill="#c6dbef", color = "black"),
         panel.border = element_rect(colour = "black", fill=NA, size=1),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) + 
@@ -63,32 +65,42 @@ annotate("text",
            x = -122.32, 
            y = 47.6,
            size = 1,
-           color = "black")
+           color = "black")+ 
+annotation_north_arrow(
+    location = "tr", which_north = "grid",
+    pad_x = unit(0.1, "in"), pad_y = unit(0.4, "in"),
+    style = north_arrow_orienteering(
+      fill = c("grey40", "white"),
+      line_col = "grey20",
+      text_family = "ArcherPro Book"))
 
-
-
+  
+puget_sound
 ## draw port_madison inset
 port_madison <- ggplot(usa_spdf_fort, aes(x = long, y = lat, group = group)) +
-  geom_polygon(color = "gray70", fill = "#d9d9d9",) +
+  geom_polygon(color = "gray50", fill = "#d9d9d9",) +
   coord_fixed(xlim = c(-122.60, -122.43), ylim = c(47.67, 47.79),  ratio = 1.3) +
   theme(plot.background = element_rect(fill = "white"),
-        panel.background = element_rect(fill="white", color = "black"),
+        panel.background = element_rect(fill="#c6dbef", color = "black"),
         panel.border = element_rect(colour = "black", fill=NA, size=1),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         text = element_blank(),
         axis.ticks = element_blank(),
         plot.margin = unit(rep(0.1, 4), "cm"))+
-  annotate("text", label = "Port Madison", x = -122.50, y = 47.73, size = 4, color = "black") #+ 
+  annotate("text", label = "Port Madison", x = -122.50, y = 47.73, size = 4, color = "black") 
 
 
 
 ## combine maps
 combined_maps <- ggdraw() +
   draw_plot(puget_sound, x = -0.15) +
-  draw_plot(port_madison, x = 0.58, y = 0.5, width = 0.4, height = 0.4)
+  draw_plot(port_madison, x = 0.58, y = 0.4, width = 0.4, height = 0.4)
 
- combined_maps
+
+
+
+
 
 ## write map to file
 ggsave(filename = file.path(fig_dir, "fig_01_PS_map.png"), 

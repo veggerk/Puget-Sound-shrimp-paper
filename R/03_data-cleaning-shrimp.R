@@ -19,7 +19,7 @@ clean_file_name_trawl <- "trawl_data_for_analysis.csv"
 clean_file_name_shrimp <- "shrimp_data_for_analysis.csv"
 
 ## shrimp genera to include
-genera <- c("Crangon", "Pandalus")
+genera <- c("Crangon alaskensis", "Pandalus platyceros","Pandalus eous / jordani")
 
 
 #### read data ####
@@ -41,15 +41,13 @@ data_raw_shrimp <- read_xlsx(raw_file_loc_shrimp, sheet = "data",
 
 ## shrimp data
 data_clean_shrimp <- data_raw_shrimp %>%
-  separate(latin_name, "genus",
-           extra = "drop", fill = "right") %>%
-  filter(genus %in% genera) %>%
-  group_by(genus, year) %>%
-  summarise(total_count = sum(number)) %>%
-  arrange(genus, year) %>%
+  filter(latin_name %in% genera) %>%
+  group_by(latin_name, year) %>%
+  summarise(total_count = sum(number))%>%
+  arrange(latin_name, year) %>%
   left_join(data_clean_trawl, by = "year") %>%
-  mutate(cpue = total_count / trawl_dist_total) %>%
-  select(genus, year, cpue)
+  mutate(cpue = total_count / trawl_dist_total)%>%
+select(latin_name, year,cpue)
 
 
 #### write data ####
