@@ -319,12 +319,16 @@ aicc %>%
 mod_8
 mod_11
 
+MARSSparamCIs(mod_8)
+
+qMARSSparamCIs(mod_11)
+
 #### plot fits model with ONI and PDO####
 
-pdf(file = here("figures", "model_fits.pdf"),
-    height = 6, width =10)
+pdf(file = here("figures", "fig_03_model_fits.pdf"),
+    height = 7, width =10)
 
-par(mai = c(0.9, 0.9, 0.1, 0.1),
+par(mai = c(0.9, 0.9, 0.3, 0.1),
     omi = rep(0.1, 4),mfrow=c(1,2))
 
 ## ts of years
@@ -336,7 +340,7 @@ years <- shrimp_data %>%
 ## plot data and fit
 matplot(years, t(shrimp_trans),
         type = "o", lty = "solid", pch = 16, las = 1,
-        xlab = "Year", ylab = "Standardized log (CPUE)",
+        xlab = "Year", ylab = "Standardized log (CPUE)", main="A",
         col = c("#e41a1c", "#377eb8","#4daf4a"))
 lines(years, as.vector(mod_11$states),col="black")
 text(1999, 1.5, expression(italic("Northern crangon shrimp")),
@@ -351,7 +355,7 @@ text(1999, 0.9, expression(italic("Spot shrimp")),
 ## plot data and fit
 matplot(years, t(shrimp_trans),
         type = "o", lty = "solid", pch = 16, las = 1,
-        xlab = "", ylab = "",
+        xlab = "", ylab = "",main="B",
         col = c("#e41a1c", "#377eb8","#4daf4a"))
 lines(years, as.vector(mod_8$states),col="black")
 
