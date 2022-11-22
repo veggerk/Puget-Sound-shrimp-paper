@@ -30,7 +30,7 @@ pdo_data <- read_csv(here(clean_data_dir, clean_file_pdo))
 ## ONI data
 oni_data <- read_csv(here(clean_data_dir, clean_file_oni))
 
-all_data<-rbind(pdo_data$pdo,oni_data$oni)
+all_covars <- rbind(pdo_data$pdo, oni_data$oni)
 
 #### transform data ####
 
@@ -57,7 +57,7 @@ BB <- diag(nn)
 UU <- matrix(0, nrow = nn)
 
 QQ <- matrix(list(0), nn, nn)
-diag(QQ) <- rep("q",nn)
+diag(QQ) <- rep("q", nn)
 
 ## obs model
 ZZ <- diag(nn)
@@ -86,7 +86,7 @@ mod_1 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 ## process model
 UU <- matrix("u", nrow = nn)
 
-mod_list$U = UU
+mod_list$U <- UU
 
 mod_2 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
@@ -106,13 +106,13 @@ mod_3 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 ## process model
 UU <- matrix(0, nrow = nn)
 
-CC <- matrix("C", nrow = 3)
+CC <- matrix("C", nrow = nn)
 
 cc <- matrix(pdo_data$pdo, nrow = 1)
 
-mod_list$U = UU
-mod_list$C = CC
-mod_list$c = cc
+mod_list$U <- UU
+mod_list$C <- CC
+mod_list$c <- cc
 
 mod_4 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
@@ -120,9 +120,9 @@ mod_4 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 #### model 5: RW with unique pdo & unique states ####
 
 ## process model
-CC <- matrix(c("1", "2","3"), nrow = 3)
+CC <- matrix(c("1", "2","3"), nrow = nn)
 
-mod_list$C = CC
+mod_list$C <- CC
 
 mod_5 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
@@ -133,10 +133,10 @@ mod_5 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 cc <- matrix(oni_data$oni, nrow = 1)
 
-CC <- matrix(c("1", "2","3"), nrow = 3)
+CC <- matrix(c("1", "2","3"), nrow = nn)
 
-mod_list$C = CC
-mod_list$c = cc
+mod_list$C <- CC
+mod_list$c <- cc
 
 mod_6 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
@@ -179,7 +179,7 @@ mod_7 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 ## process model
 UU <- matrix("u")
 
-mod_list$U = UU
+mod_list$U <- UU
 
 mod_8 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
@@ -193,9 +193,9 @@ CC <- matrix("C")
 
 cc <- matrix(pdo_data$pdo, nrow = 1)
 
-mod_list$U = UU
-mod_list$C = CC
-mod_list$c = cc
+mod_list$U <- UU
+mod_list$C <- CC
+mod_list$c <- cc
 
 mod_9 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
@@ -209,9 +209,9 @@ CC <- matrix("C")
 
 cc <- matrix(oni_data$oni, nrow = 1)
 
-mod_list$U = UU
-mod_list$C = CC
-mod_list$c = cc
+mod_list$U <- UU
+mod_list$C <- CC
+mod_list$c <- cc
 
 mod_10 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
@@ -221,36 +221,18 @@ mod_10 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 ## process model
 UU <- matrix(0)
 
-CC <- matrix(c("PDO","ENSO"),nrow=1,ncol=2)
+CC <- matrix(c("PDO", "ENSO"), nrow = 1, ncol = 2)
 
-cc <- all_data
+cc <- all_covars
 
-mod_list$U = UU
-mod_list$C = CC
-mod_list$c = cc
+mod_list$U <- UU
+mod_list$C <- CC
+mod_list$c <- cc
 
 mod_11 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-
-
-#### model 12: RW with ONI & shared state ####
-
-## process model
-UU <- matrix(0)
-
-CC <- matrix("C")
-
-cc <- matrix(oni_data$oni, nrow = 1)
-
-mod_list$U = UU
-mod_list$C = CC
-mod_list$c = cc
-
-mod_12 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
-
-
-#### model 13: RW with shared ONI & unique states ####
+#### model 12: RW with shared ONI & unique states ####
 
 ## process model
 UU <- matrix(0, nrow = nn)
@@ -259,44 +241,189 @@ CC <- matrix("C", nrow = 3)
 
 cc <- matrix(oni_data$oni, nrow = 1)
 
-ZZ<-diag(nn)
-BB<-diag(nn)
+BB <- diag(nn)
 QQ <- matrix(list(0), nn, nn)
-diag(QQ) <- rep("q",nn)
+diag(QQ) <- rep("q", nn)
 
-mod_list$U = UU
-mod_list$C = CC
-mod_list$c = cc
-mod_list$Z = ZZ
-mod_list$B = BB
-mod_list$Q = QQ
+## obs model
+ZZ <- diag(nn)
+
+mod_list$U <- UU
+mod_list$C <- CC
+mod_list$c <- cc
+mod_list$Z <- ZZ
+mod_list$B <- BB
+mod_list$Q <- QQ
+
+mod_12 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
+#### model 13: RW with PDO, ENSO & unique states ####
+
+## process model
+UU <- matrix(0, nrow = nn)
+CC <- matrix(c(paste("PDO", seq(nn), sep = "."),
+               paste("ONI", seq(nn), sep = ".")),
+             nrow = 3, ncol = 2)
+
+cc <- all_covars
+BB <- diag(nn)
+
+QQ <- matrix(list(0), nn, nn)
+diag(QQ) <- rep("q", nn)
+
+## obs model
+ZZ <- diag(nn)
+
+mod_list$Q <- QQ
+mod_list$B <- BB
+mod_list$Z <- ZZ
+mod_list$U <- UU
+mod_list$C <- CC
+mod_list$c <- cc
 
 mod_13 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 14: RW with PDO, ENSO & unique state ####
+#### model 14: RW with PDO, ENSO & unique states ####
 
 ## process model
-UU <- matrix(0, nrow = 3)
-CC <- matrix(c("PDO.1", "PDO.2", "PDO.3", "ONI.1", "ONI.2", "ONI.3"), nrow = 3, ncol = 2)
+CC <- matrix(c(rep("PDO", nn),
+               rep("ONI", nn)),
+             nrow = 3, ncol = 2)
 
-cc <- all_data
-ZZ<-diag(3)
-BB<-diag(3)
-
-QQ <- matrix(list(0), nn, nn)
-diag(QQ) <- rep("q",nn)
-
-mod_list$Q = QQ
-mod_list$B = BB
-mod_list$Z = ZZ
-mod_list$U = UU
-mod_list$C = CC
-mod_list$c = cc
+mod_list$C <- CC
 
 mod_14 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
+#### model 15: RW with no bias & shared state for Pandalus ####
+
+## number of states
+pp <- 2
+
+## process model
+UU <- matrix(0, nrow = pp)
+
+CC <- matrix(rep(0, pp),
+             nrow = pp, ncol = 2)
+
+cc <- all_covars
+
+BB <- diag(pp)
+
+QQ <- matrix(list(0), pp, pp)
+diag(QQ) <- rep("q", pp)
+
+## obs model
+ZZ <- matrix(c(1, 0, 0, 0, 1, 1),
+             nrow = nn, ncol = pp)
+
+mod_list$Q <- QQ
+mod_list$B <- BB
+mod_list$Z <- ZZ
+mod_list$U <- UU
+mod_list$C <- CC
+mod_list$c <- cc
+
+mod_15 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
+#### model 16: RW with shared bias & shared state for Pandalus ####
+
+## process model
+UU <- matrix("u", nrow = pp)
+
+mod_list$U <- UU
+
+mod_16 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
+#### model 17: RW with unique biases & shared state for Pandalus ####
+
+## process model
+UU <- matrix(paste("u", seq(pp), sep = "."), nrow = pp)
+
+mod_list$U <- UU
+
+mod_17 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
+#### model 18: RW with shared PDO & shared state for Pandalus ####
+
+## process model
+UU <- matrix(0, nrow = pp)
+
+CC <- matrix("C", nrow = pp)
+
+cc <- matrix(pdo_data$pdo, nrow = 1)
+
+mod_list$U <- UU
+mod_list$C <- CC
+mod_list$c <- cc
+
+mod_18 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
+#### model 19: RW with unique PDO & shared state for Pandalus ####
+
+## process model
+CC <- matrix(paste("C", seq(pp), sep = "."), nrow = pp)
+
+mod_list$C <- CC
+
+mod_19 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
+#### model 20: RW with shared ONI & shared state for Pandalus ####
+
+## process model
+CC <- matrix("C", nrow = pp)
+
+cc <- matrix(oni_data$oni, nrow = 1)
+
+mod_list$C <- CC
+mod_list$c <- cc
+
+mod_20 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
+#### model 21: RW with unique ONI & shared state for Pandalus ####
+
+## process model
+CC <- matrix(paste("C", seq(pp), sep = "."), nrow = pp)
+
+mod_list$C <- CC
+
+mod_21 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
+#### model 22: RW with shared PDO & ONI & shared state for Pandalus ####
+
+## process model
+CC <- matrix(c("PDO", "PDO", "ONI", "ONI"),
+             nrow = pp, ncol = 2)
+
+cc <- all_covars
+
+mod_list$C <- CC
+mod_list$c <- cc
+
+mod_22 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
+#### model 23: RW with unique PDO & ONI & shared state for Pandalus ####
+
+## process model
+CC <- matrix(c(paste("PDO", seq(pp), sep = "."),
+               paste("ONI", seq(pp), sep = ".")),
+             nrow = pp, ncol = 2)
+
+mod_list$C <- CC
+
+mod_23 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+
+
 
 
 #### model selection ####
@@ -304,8 +431,10 @@ mod_14 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 aicc <- c(mod_1$AICc, mod_2$AICc, mod_3$AICc, mod_4$AICc,
           mod_5$AICc, mod_6$AICc, mod_7$AICc, mod_8$AICc, 
           mod_9$AICc, mod_10$AICc, mod_11$AICc, mod_12$AICc, 
-          mod_13$AICc, mod_14$AICc)
-names(aicc) <- paste0("mod_", seq(14))
+          mod_13$AICc, mod_14$AICc, mod_15$AICc, mod_16$AICc,
+          mod_17$AICc, mod_18$AICc, mod_19$AICc, mod_20$AICc,
+          mod_21$AICc, mod_22$AICc, mod_23$AICc)
+names(aicc) <- paste0("mod_", seq(length(aicc)))
 
 aicc %>%
   sort() %>%
@@ -321,7 +450,7 @@ mod_11
 
 MARSSparamCIs(mod_8)
 
-qMARSSparamCIs(mod_11)
+MARSSparamCIs(mod_11)
 
 #### plot fits model with ONI and PDO####
 
