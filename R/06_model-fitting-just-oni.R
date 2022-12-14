@@ -32,7 +32,7 @@ oni_data <- read_csv(here(clean_data_dir, clean_file_oni))
 
 ## shrimp data for MARSS
 shrimp_trans <- shrimp_data %>%
-  pivot_wider(names_from = genus, values_from = cpue) %>%
+  pivot_wider(names_from = latin_name, values_from = cpue) %>%
   select(-year) %>%
   log() %>%
   scale() %>%
@@ -53,7 +53,7 @@ BB <- diag(nn)
 UU <- matrix(0, nrow = nn)
 
 QQ <- matrix(list(0), nn, nn)
-diag(QQ) <- c("q", "q")
+diag(QQ) <- rep("q", nn)
 
 ## obs model
 ZZ <- diag(nn)
@@ -61,7 +61,7 @@ ZZ <- diag(nn)
 AA <- matrix(0, nrow = nn)
 
 RR <- matrix(list(0), nn, nn)
-diag(RR) <- c("r", "r")
+diag(RR) <- rep("r", nn)
 
 mod_list <- list(
   B = BB,
@@ -90,7 +90,7 @@ mod_2 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 #### model 3: RW with unique biases & unique states ####
 
 ## process model
-UU <- matrix(c("1", "2"), nrow = nn)
+UU <- matrix(c("1", "2", "3"), nrow = nn)
 
 mod_list$U = UU
 
@@ -102,7 +102,7 @@ mod_3 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 ## process model
 UU <- matrix(0, nrow = nn)
 
-CC <- matrix("C", nrow = 2)
+CC <- matrix("C", nrow = nn)
 
 cc <- matrix(oni_data$oni, nrow = 1)
 
@@ -116,7 +116,7 @@ mod_4 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 #### model 5: RW with unique ONI & unique states ####
 
 ## process model
-CC <- matrix(c("1", "2"), nrow = 2)
+CC <- matrix(c("1", "2", "3"), nrow = nn)
 
 mod_list$C = CC
 
@@ -193,8 +193,8 @@ aicc %>%
   round(1) %>%
   magrittr::subtract(min(.))
 
-## mod_7 mod_6 mod_2 mod_8 mod_3 mod_1 mod_4 mod_5 
-##   0.0   1.4   1.5   3.4   4.2  10.9  12.6  15.1 
+## mod_7 mod_2 mod_6 mod_8 mod_3 mod_1 mod_4 mod_5 
+##   0.0   4.7   5.0   6.8   9.8  22.8  24.2  29.1
 
 ## model 7 is the most parsimonious
 
@@ -208,7 +208,7 @@ par(mai = c(0.9, 0.9, 0.1, 0.1),
 
 ## ts of years
 years <- shrimp_data %>%
-  pivot_wider(names_from = genus, values_from = cpue) %>%
+  pivot_wider(names_from = latin_name, values_from = cpue) %>%
   select(year) %>%
   unlist()
 
