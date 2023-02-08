@@ -3,6 +3,37 @@
 ## This script is for cleaning the raw catch data into a format suitable 
 ## for modeling.
 
+# Description of raw data fields: 
+
+# year = year that row of data was collected
+# 
+# month =  month that row of data was collected
+#   
+# day =  day that row of data was collected
+# 
+# date = date that row of data was collected
+# 
+# shift = the time of day when that row of data was collected. There were 5 different shifts.
+# 
+# depth_m = the depth in meters that row of data was collected
+# 
+# taxonomic group = the rough taxonomic classification of that row of data
+# 
+# common_name = the common name for a specific species
+# 
+# latin = the scientific name of a specific species
+# 
+# species = combination of common name and latin name into one column
+# 
+# sex = the gender of that species, if it was possible to determine
+#   
+# number = the number of individuals of that species collected 
+#   
+# notes = miscellaneous notes from data collection
+
+
+
+
 #### setup ####
 
 library(here)

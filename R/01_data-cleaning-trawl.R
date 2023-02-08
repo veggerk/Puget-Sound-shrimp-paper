@@ -2,6 +2,28 @@
 
 ## This script is for cleaning up the trawl data.
 
+# Description of raw data fields: 
+ 
+# We'll describe the relevant fields we used. 
+# Additional metadata can be obtained from Chelsea Wood at UW SAFS. 
+
+# year = year that row of data was collected
+# 
+# month =  month that row of data was collected
+#   
+# day =  day that row of data was collected
+# 
+# date = date that row of data was collected
+# 
+# intended_depth_m = the depth in meters of the trawl being conducted 
+# 
+# shift = the time of day when that row of data was collected. There were 5 different shifts.
+# 
+# trawl_dist_m = the total distance the trawl was done in meters
+
+
+
+
 #### setup ####
 
 library(here)
