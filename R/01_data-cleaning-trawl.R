@@ -1,26 +1,44 @@
 ## 01_data-cleaning-trawl.R
 
-## This script is for cleaning up the trawl data.
+## This script is for cleaning up the trawl data. 
+# The datasheet is: 'puget_sound_trawlmaster.xlsx'
 
 # Description of raw data fields: 
  
-# We'll describe the relevant fields we used. 
-# Additional metadata can be obtained from Chelsea Wood at UW SAFS. 
-
-# year = year that row of data was collected
-# 
-# month =  month that row of data was collected
-#   
-# day =  day that row of data was collected
-# 
+# year =	year that row of data was collected
+# month	= month that row of data was collected
+# day	= day that row of data was collected
 # date = date that row of data was collected
-# 
-# intended_depth_m = the depth in meters of the trawl being conducted 
-# 
-# shift = the time of day when that row of data was collected. There were 5 different shifts.
-# 
-# trawl_dist_m = the total distance the trawl was done in meters
-
+# gear = specifies the net type used to trawl
+# vessel = the name of the vessel, sometimes not recorded
+# station	= numeric coding for trawl depth and trawl time, repeated each year, ex: intended depth of '10m' and shift of 'afternoon' = 1.1
+# intended_depth_m = the target depth in meters of the trawl being conducted 
+# shift	= the time of day. There were 5 different shifts.
+# predicted_tide_category	= type of tide during trawl, sometimes not recorded
+# wire_out_feet	= the trawl wire deployed in feet
+# trawl_dist_nm	= the distance trawled in nautical miles
+# trawl_dist_m = the total distance the trawl was done in meters, used to calculate CPUE
+# trawl_direction_degrees_mag	= trawl distance in degrees mag, sometimes not recorded
+# trawl_speed_knots	= the trawl speed in knots
+# time_start_set = the exact time the trawl was set
+# depth_m_start_set	= the actual depth in meters of the trawl net
+# predicted_tide_m_start_set = the approximate tide elevation when the trawl was set
+# depth_MLLW_m_start_set = the actual depth in meters of the trawl net
+# lat_start_set	= the latitude of the trawl being set
+# long_start_set = the longitude of the trawl being set
+# time_start_tow = the exact time the trawling started
+# depth_m_start_tow	= the actual depth in meters of the trawl net when trawling started
+# predicted_tide_m_start_tow = the approximate tide elevation when the trawling started
+# depth_MLLW_m_start_tow = the actual depth in meters of the trawl net when trawling started
+# lat_start_tow	= the latitude of the trawl when the trawling started
+# long_start_tow = the longitude of the trawl when the trawling started
+# time_end_tow = the exact time the trawling ended
+# depth_m_end_tow	= the actual depth in meters of the trawl net when the trawl ended
+# predicted_tide_m_end_tow = the approximate tide elevation when the trawl ended
+# depth_MLLW_m_end_tow = the actual depth in meters of the trawl net when the trawl ended
+# lat_end_tow = the latitude of when the trawl ended
+# long_end_tow = the longitude of when the trawl ended
+# notes	= general notes about the trawl
 
 
 
