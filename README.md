@@ -1,4 +1,4 @@
-# Trend analysis of Puget Sound shrimp
+# Climate-associated change in the abundance of Shrimp in Puget Sound, USA
 
 This repo contains the data and code necessary to replicate the analyses presented in Veggerby et al. The compendium is structured as follows:
 
@@ -8,4 +8,6 @@ This repo contains the data and code necessary to replicate the analyses present
 
 `\data\clean` folder with cleaned data files
 
-`\manuscript` folder with manuscript files
+`\data\map_files` folder with files to generate the figure 1 map
+
+`\figures` folder with figures
