@@ -46,7 +46,7 @@ p5<-ggplot(data = spot_shrimp,aes(x=year,y=cpue))+
   scale_x_continuous(expand = c(0,0),
                      name = "")+
   scale_y_continuous(expand = c(0,0),
-                     name = "CPUE",
+                     name = "CPUE (# shrimp/trawl distance)",
                      limits = c(0,260),
                      breaks = c(0,100,200))
 

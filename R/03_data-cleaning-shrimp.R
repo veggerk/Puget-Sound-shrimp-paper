@@ -76,3 +76,23 @@ clean_data_loc <- here("data", "clean", clean_file_name_shrimp)
 
 data_clean_shrimp %>% write_csv(clean_data_loc)
 
+
+
+
+
+
+crangon<-subset(data_clean_shrimp,subset = latin_name=="Crangon alaskensis")
+pink_shrimp<-subset(data_clean_shrimp,subset = latin_name=="Pandalus eous / jordani")
+spot_shrimp<-subset(data_clean_shrimp,subset = latin_name=="Pandalus platyceros")
+
+
+hist(log(crangon$cpue))
+shapiro.test(log(crangon$cpue))
+
+hist(log(pink_shrimp$cpue))
+shapiro.test(log(pink_shrimp$cpue))
+
+
+hist(log(spot_shrimp$cpue))
+spot_shrimp <- spot_shrimp[-1, ]
+shapiro.test(log(spot_shrimp$cpue))
