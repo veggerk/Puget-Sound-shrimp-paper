@@ -470,15 +470,15 @@ years <- shrimp_data %>%
 matplot(years, t(shrimp_trans),
         type = "o", lty = "solid", pch = 16, las = 1,
         xlab = "Year", ylab = "Standardized log (CPUE)", main="A",
-        col = c("#e41a1c", "#377eb8","#4daf4a"), xaxt='n')
+        col = c("#d95f02", "#7570b3","#1b9e77"), xaxt='n')
 axis(side=1, at=seq(1999, 2019, by=5))
 lines(years, as.vector(mod_11$states),col="black")
 text(1999, 1.5, expression(italic("Northern crangon shrimp")),
-     pos = 4, col = "#e41a1c")
+     pos = 4, col = "#d95f02")
 text(1999, 1.2, expression(italic("Pink shrimp")),
-     pos = 4, col = "#377eb8")
+     pos = 4, col = "#7570b3")
 text(1999, 0.9, expression(italic("Spot shrimp")),
-     pos = 4, col = "#4daf4a")
+     pos = 4, col = "#1b9e77")
 
 #### plot fits top model ####
 
@@ -486,7 +486,7 @@ text(1999, 0.9, expression(italic("Spot shrimp")),
 matplot(years, t(shrimp_trans),
         type = "o", lty = "solid", pch = 16, las = 1,
         xlab = "", ylab = "",main="B",
-        col = c("#e41a1c", "#377eb8","#4daf4a"), xaxt='n')
+        col = c("#d95f02", "#7570b3","#1b9e77"), xaxt='n')
 axis(side=1, at=seq(1999, 2019, by=5))
 lines(years, as.vector(mod_8$states),col="black")
 
