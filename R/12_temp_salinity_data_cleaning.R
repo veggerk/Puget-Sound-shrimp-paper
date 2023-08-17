@@ -146,17 +146,40 @@ temp_salinity_data <- cbind(temp_salinity_data,year)
 
 
 
-# save the organized data file to the clean data folder.
-
-clean_file_name_data <- "temperature_and_salinity_data.csv"
-clean_data_loc <- here("data/clean", clean_file_name_data)
-temp_salinity_data %>% write_csv(clean_data_loc)
-
 
 # subset data to just our trawl depth range: 10m - 70m  
-
 temp_salinity_data<- filter(.data = temp_salinity_data, 
                             temp_salinity_data$Sample_Depth >= 10 & 
                               temp_salinity_data$Sample_Depth <= 70)
+
+# clean temp data
+temp_data<-temp_salinity_data %>%
+  group_by(year) %>%
+  summarize(temp = mean(Sample_Temperature_field))
+
+
+# clean salinity data
+salinity_data <- temp_salinity_data %>%
+  group_by(year) %>%
+  summarize(salinity = mean(Salinity_field))
+
+
+# save the organized data file to the clean data folder.
+
+clean_file_name_data <- "temperature_data.csv"
+clean_data_loc <- here("data/clean", clean_file_name_data)
+temp_data %>% write_csv(clean_data_loc)
+
+clean_file_name_data <- "salinity_data.csv"
+clean_data_loc <- here("data/clean", clean_file_name_data)
+salinity_data %>% write_csv(clean_data_loc)
+
+
+ggplot(data = temp_data, aes(x=year, y=temp))+
+  geom_line()
+
+ggplot(data = salinity_data, aes(x=year, y=salinity))+
+  geom_line()
+
 
 
