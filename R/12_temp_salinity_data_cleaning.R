@@ -181,5 +181,12 @@ ggplot(data = temp_data, aes(x=year, y=temp))+
 ggplot(data = salinity_data, aes(x=year, y=salinity))+
   geom_line()
 
+mean(temp_data$temp)
+min(temp_data$temp)
+max(temp_data$temp)
+
+mean(salinity_data$salinity)
+min(salinity_data$salinity)
+max(salinity_data$salinity)
 
 
