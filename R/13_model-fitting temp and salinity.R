@@ -1,5 +1,6 @@
 ## 13_model-fitting temp and salinity.R
 
+
 ## This script is for fitting time series models to the data.
 
 #### requirements ####
@@ -17,20 +18,20 @@ clean_data_dir <- here("data", "clean")
 ## clean file names
 clean_file_shrimp <- "shrimp_data_for_analysis.csv"
 clean_file_temp <- "temperature_data.csv"
-clean_file_sal <- "salinity_data.csv"
+clean_file_salinity <- "salinity_data.csv"
 
 #### read data ####
 
 ## cleaned shrimp data
 shrimp_data <- read_csv(here(clean_data_dir, clean_file_shrimp))
 
-## temp data
+## pdo data
 temp_data <- read_csv(here(clean_data_dir, clean_file_temp))
 
-## salinity data
-sal_data <- read_csv(here(clean_data_dir, clean_file_sal))
+## ONI data
+salinity_data <- read_csv(here(clean_data_dir, clean_file_salinity))
 
-all_covars <- rbind(temp_data$temp, sal_data$salinity)
+all_covars <- rbind(temp_data$temp, salinity_data$salinity)
 
 #### transform data ####
 
@@ -49,7 +50,7 @@ nn <- nrow(shrimp_trans)
 tt <- ncol(shrimp_trans)
 
 
-#### model 1: RW with no biases & unique states ####
+#### model 24: RW with no biases & unique states ####
 
 ## process model
 BB <- diag(nn)
@@ -78,30 +79,30 @@ mod_list <- list(
 
 con_list <- list(maxit = 2000)
 
-mod_1 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_24 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 2: RW with shared bias & unique states ####
+#### model 25: RW with shared bias & unique states ####
 
 ## process model
 UU <- matrix("u", nrow = nn)
 
 mod_list$U <- UU
 
-mod_2 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_25 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 3: RW with unique biases & unique states ####
+#### model 26: RW with unique biases & unique states ####
 
 ## process model
 UU <- matrix(c("1", "2","3"), nrow = nn)
 
 mod_list$U = UU
 
-mod_3 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_26 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 4: RW with shared temp & unique states ####
+#### model 27: RW with shared temp & unique states ####
 
 ## process model
 UU <- matrix(0, nrow = nn)
@@ -114,34 +115,34 @@ mod_list$U <- UU
 mod_list$C <- CC
 mod_list$c <- cc
 
-mod_4 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_27 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 5: RW with unique temp & unique states ####
+#### model 28: RW with unique temp & unique states ####
 
 ## process model
 CC <- matrix(c("1", "2","3"), nrow = nn)
 
 mod_list$C <- CC
 
-mod_5 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_28 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 6: RW with unique salinity & unique states ####
+#### model 29: RW with unique salinity & unique states ####
 
 ## process model
 
-cc <- matrix(sal_data$salinity, nrow = 1)
+cc <- matrix(salinity_data$salinity, nrow = 1)
 
 CC <- matrix(c("1", "2","3"), nrow = nn)
 
 mod_list$C <- CC
 mod_list$c <- cc
 
-mod_6 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_29 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 7: RW with no bias & shared state ####
+#### model 30: RW with no bias & shared state ####
 
 ## process model
 BB <- matrix(1)
@@ -171,20 +172,20 @@ mod_list <- list(
   R = RR
 )
 
-mod_7 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_30 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 8: RW with bias & shared state ####
+#### model 31: RW with bias & shared state ####
 
 ## process model
 UU <- matrix("u")
 
 mod_list$U <- UU
 
-mod_8 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_31 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 9: RW with temp & shared state ####
+#### model 32: RW with temp & shared state ####
 
 ## process model
 UU <- matrix(0)
@@ -197,31 +198,31 @@ mod_list$U <- UU
 mod_list$C <- CC
 mod_list$c <- cc
 
-mod_9 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_32 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 10: RW with salinity & shared state ####
+#### model 33: RW with salinity & shared state ####
 
 ## process model
 UU <- matrix(0)
 
 CC <- matrix("C")
 
-cc <- matrix(sal_data$salinity, nrow = 1)
+cc <- matrix(salinity_data$salinity, nrow = 1)
 
 mod_list$U <- UU
 mod_list$C <- CC
 mod_list$c <- cc
 
-mod_10 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_33 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 11: RW with temp,  & shared state ####
+#### model 34: RW with temp, salinity & shared state ####
 
 ## process model
 UU <- matrix(0)
 
-CC <- matrix(c("temp", ""), nrow = 1, ncol = 2)
+CC <- matrix(c("temp", "salinity"), nrow = 1, ncol = 2)
 
 cc <- all_covars
 
@@ -229,17 +230,17 @@ mod_list$U <- UU
 mod_list$C <- CC
 mod_list$c <- cc
 
-mod_11 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_34 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 12: RW with shared salinity & unique states ####
+#### model 35: RW with shared salinity & unique states ####
 
 ## process model
 UU <- matrix(0, nrow = nn)
 
 CC <- matrix("C", nrow = 3)
 
-cc <- matrix(sal_data$salinity, nrow = 1)
+cc <- matrix(salinity_data$salinity, nrow = 1)
 
 BB <- diag(nn)
 QQ <- matrix(list(0), nn, nn)
@@ -255,15 +256,15 @@ mod_list$Z <- ZZ
 mod_list$B <- BB
 mod_list$Q <- QQ
 
-mod_12 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_35 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 13: RW with temp,  & unique states ####
+#### model 36: RW with temp, salinity & unique states ####
 
 ## process model
 UU <- matrix(0, nrow = nn)
 CC <- matrix(c(paste("temp", seq(nn), sep = "."),
-               paste("", seq(nn), sep = ".")),
+               paste("salinity", seq(nn), sep = ".")),
              nrow = 3, ncol = 2)
 
 cc <- all_covars
@@ -282,22 +283,22 @@ mod_list$U <- UU
 mod_list$C <- CC
 mod_list$c <- cc
 
-mod_13 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_36 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 14: RW with temp,  & unique states ####
+#### model 37: RW with temp, salinity & unique states ####
 
 ## process model
 CC <- matrix(c(rep("temp", nn),
-               rep("", nn)),
+               rep("salinity", nn)),
              nrow = 3, ncol = 2)
 
 mod_list$C <- CC
 
-mod_14 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_37 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 15: RW with no bias & shared state for Pandalus ####
+#### model 38: RW with no bias & shared state for Pandalus ####
 
 ## number of states
 pp <- 2
@@ -326,30 +327,30 @@ mod_list$U <- UU
 mod_list$C <- CC
 mod_list$c <- cc
 
-mod_15 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_38 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 16: RW with shared bias & shared state for Pandalus ####
+#### model 39: RW with shared bias & shared state for Pandalus ####
 
 ## process model
 UU <- matrix("u", nrow = pp)
 
 mod_list$U <- UU
 
-mod_16 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_39 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 17: RW with unique biases & shared state for Pandalus ####
+#### model 40: RW with unique biases & shared state for Pandalus ####
 
 ## process model
 UU <- matrix(paste("u", seq(pp), sep = "."), nrow = pp)
 
 mod_list$U <- UU
 
-mod_17 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_40 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 18: RW with shared temp & shared state for Pandalus ####
+#### model 41: RW with shared temp & shared state for Pandalus ####
 
 ## process model
 UU <- matrix(0, nrow = pp)
@@ -362,46 +363,46 @@ mod_list$U <- UU
 mod_list$C <- CC
 mod_list$c <- cc
 
-mod_18 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_41 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 19: RW with unique temp & shared state for Pandalus ####
+#### model 42: RW with unique temp & shared state for Pandalus ####
 
 ## process model
 CC <- matrix(paste("C", seq(pp), sep = "."), nrow = pp)
 
 mod_list$C <- CC
 
-mod_19 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_42 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 20: RW with shared salinity & shared state for Pandalus ####
+#### model 43: RW with shared salinity & shared state for Pandalus ####
 
 ## process model
 CC <- matrix("C", nrow = pp)
 
-cc <- matrix(sal_data$salinity, nrow = 1)
+cc <- matrix(salinity_data$salinity, nrow = 1)
 
 mod_list$C <- CC
 mod_list$c <- cc
 
-mod_20 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_43 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 21: RW with unique  & shared state for Pandalus ####
+#### model 44: RW with unique salinity & shared state for Pandalus ####
 
 ## process model
 CC <- matrix(paste("C", seq(pp), sep = "."), nrow = pp)
 
 mod_list$C <- CC
 
-mod_21 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_44 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 22: RW with shared temp &  & shared state for Pandalus ####
+#### model 45: RW with shared temp & salinity & shared state for Pandalus ####
 
 ## process model
-CC <- matrix(c("temp", "temp", "", ""),
+CC <- matrix(c("temp", "temp", "salinity", "salinity"),
              nrow = pp, ncol = 2)
 
 cc <- all_covars
@@ -409,60 +410,65 @@ cc <- all_covars
 mod_list$C <- CC
 mod_list$c <- cc
 
-mod_22 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_45 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
-#### model 23: RW with unique temp &  & shared state for Pandalus ####
+#### model 46: RW with unique temp & salinity & shared state for Pandalus ####
 
 ## process model
 CC <- matrix(c(paste("temp", seq(pp), sep = "."),
-               paste("", seq(pp), sep = ".")),
+               paste("salinity", seq(pp), sep = ".")),
              nrow = pp, ncol = 2)
 
 mod_list$C <- CC
 
-mod_23 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
+mod_46 <- MARSS(shrimp_trans, model = mod_list, control = con_list)
 
 
 
 
 #### model selection ####
 
-aicc <- c(mod_1$AICc, mod_2$AICc, mod_3$AICc, mod_4$AICc,
-          mod_5$AICc, mod_6$AICc, mod_7$AICc, mod_8$AICc, 
-          mod_9$AICc, mod_10$AICc, mod_11$AICc, mod_12$AICc, 
-          mod_13$AICc, mod_14$AICc, mod_15$AICc, mod_16$AICc,
-          mod_17$AICc, mod_18$AICc, mod_19$AICc, mod_20$AICc,
-          mod_21$AICc, mod_22$AICc, mod_23$AICc)
-names(aicc) <- paste0("mod_", seq(length(aicc)))
+aicc <- c(mod_24$AICc, mod_25$AICc, mod_26$AICc, mod_27$AICc,
+          mod_28$AICc, mod_29$AICc, mod_30$AICc, mod_31$AICc, 
+          mod_32$AICc, mod_33$AICc, mod_34$AICc, mod_35$AICc, 
+          mod_36$AICc, mod_37$AICc, mod_38$AICc, mod_39$AICc,
+          mod_40$AICc, mod_41$AICc, mod_42$AICc, mod_43$AICc,
+          mod_44$AICc, mod_45$AICc, mod_46$AICc)
+names(aicc) <- paste0("mod_", seq(length(aicc))+23)
 
 aicc %>%
   sort() %>%
   round(1) %>%
   magrittr::subtract(min(.))
 
-#mod_8 mod_10  mod_9 mod_11 mod_16 mod_20 mod_18 mod_22 mod_17 mod_21  mod_2 mod_12  mod_7 mod_19  mod_4 mod_14 
-#0.0    0.1    0.5    0.9    2.3    2.4    2.8    3.2    4.6    4.7    4.7    4.9    5.0    5.0    5.2    5.8 
-#mod_23  mod_3  mod_6  mod_5 mod_15 mod_13  mod_1 
-#6.3    9.8    9.9   10.2   13.0   14.7   22.8 
+# mod_31 mod_33 mod_32 mod_34  mod_43 mod_41 mod_45 mod_44  mod_35  mod_42 mod_27 mod_37 
+# 0.0    0.1    0.5    0.9    2.4    2.8    3.2   4.7      4.9     5.0    5.2    5.8 
+# mod_46  mod_29 mod_28 mod_36 
+# 6.3     9.9   10.2    14.7   
 
-## model 8, 9,10,11 are the top models 
-mod_8
-mod_9
-mod_10
-mod_11
+## model 31,32, 33, 34 are the top models 
+mod_31
+mod_32
+mod_33
+mod_34
 
-MARSSparamCIs(mod_8)
+MARSSparamCIs(mod_32)
 
-MARSSparamCIs(mod_11)
 
-#### plot fits model with salinity and temp####
+# mod_8: simple model with bias: delta AICc: 0
+# mod_11: ONI and PDO model: delta AICc: 1.1
+# mod_34: temp and salinity model: delta AICc: 0.9
 
-pdf(file = here("figures", "fig_03_model_fits.pdf"),
+
+
+#### plot fits model with ONI, PDO, salinity, and temp ####
+
+pdf(file = here("figures", "fig_03_model_fits_with_temp_and_salinity_added.pdf"),
     height = 7, width =10)
 
 par(mai = c(0.9, 0.9, 0.3, 0.1),
-    omi = rep(0.1, 4),mfrow=c(1,2))
+    omi = rep(0.1, 4),mfrow=c(1,3))
 
 ## ts of years
 years <- shrimp_data %>%
@@ -470,7 +476,7 @@ years <- shrimp_data %>%
   select(year) %>%
   unlist()
 
-## plot data and fit
+## plot data and fit PDO and ONI models
 matplot(years, t(shrimp_trans),
         type = "o", lty = "solid", pch = 16, las = 1,
         xlab = "Year", ylab = "Standardized log (CPUE)", main="A",
@@ -484,12 +490,26 @@ text(1999, 1.2, expression(italic("Pink shrimp")),
 text(1999, 0.9, expression(italic("Spot shrimp")),
      pos = 4, col = "#1b9e77")
 
+## plot data and fit temp and salinity model
+matplot(years, t(shrimp_trans),
+        type = "o", lty = "solid", pch = 16, las = 1,
+        xlab = "Year", ylab = "Standardized log (CPUE)", main="B",
+        col = c("#d95f02", "#7570b3","#1b9e77"), xaxt='n')
+axis(side=1, at=seq(1999, 2019, by=5))
+lines(years, as.vector(mod_34$states),col="black")
+text(1999, 1.5, expression(italic("Northern crangon shrimp")),
+     pos = 4, col = "#d95f02")
+text(1999, 1.2, expression(italic("Pink shrimp")),
+     pos = 4, col = "#7570b3")
+text(1999, 0.9, expression(italic("Spot shrimp")),
+     pos = 4, col = "#1b9e77")
+
 #### plot fits top model ####
 
 ## plot data and fit
 matplot(years, t(shrimp_trans),
         type = "o", lty = "solid", pch = 16, las = 1,
-        xlab = "", ylab = "",main="B",
+        xlab = "", ylab = "",main="C",
         col = c("#d95f02", "#7570b3","#1b9e77"), xaxt='n')
 axis(side=1, at=seq(1999, 2019, by=5))
 lines(years, as.vector(mod_8$states),col="black")

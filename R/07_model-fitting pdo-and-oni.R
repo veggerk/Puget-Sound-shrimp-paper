@@ -453,43 +453,43 @@ MARSSparamCIs(mod_8)
 MARSSparamCIs(mod_11)
 
 #### plot fits model with ONI and PDO####
-
-pdf(file = here("figures", "fig_03_model_fits.pdf"),
-    height = 7, width =10)
-
-par(mai = c(0.9, 0.9, 0.3, 0.1),
-    omi = rep(0.1, 4),mfrow=c(1,2))
-
-## ts of years
-years <- shrimp_data %>%
-  pivot_wider(names_from = latin_name, values_from = cpue) %>%
-  select(year) %>%
-  unlist()
-
-## plot data and fit
-matplot(years, t(shrimp_trans),
-        type = "o", lty = "solid", pch = 16, las = 1,
-        xlab = "Year", ylab = "Standardized log (CPUE)", main="A",
-        col = c("#d95f02", "#7570b3","#1b9e77"), xaxt='n')
-axis(side=1, at=seq(1999, 2019, by=5))
-lines(years, as.vector(mod_11$states),col="black")
-text(1999, 1.5, expression(italic("Northern crangon shrimp")),
-     pos = 4, col = "#d95f02")
-text(1999, 1.2, expression(italic("Pink shrimp")),
-     pos = 4, col = "#7570b3")
-text(1999, 0.9, expression(italic("Spot shrimp")),
-     pos = 4, col = "#1b9e77")
-
-#### plot fits top model ####
-
-## plot data and fit
-matplot(years, t(shrimp_trans),
-        type = "o", lty = "solid", pch = 16, las = 1,
-        xlab = "", ylab = "",main="B",
-        col = c("#d95f02", "#7570b3","#1b9e77"), xaxt='n')
-axis(side=1, at=seq(1999, 2019, by=5))
-lines(years, as.vector(mod_8$states),col="black")
-
-
-dev.off()
-
+# 
+# pdf(file = here("figures", "fig_03_model_fits.pdf"),
+#     height = 7, width =10)
+# 
+# par(mai = c(0.9, 0.9, 0.3, 0.1),
+#     omi = rep(0.1, 4),mfrow=c(1,2))
+# 
+# ## ts of years
+# years <- shrimp_data %>%
+#   pivot_wider(names_from = latin_name, values_from = cpue) %>%
+#   select(year) %>%
+#   unlist()
+# 
+# ## plot data and fit
+# matplot(years, t(shrimp_trans),
+#         type = "o", lty = "solid", pch = 16, las = 1,
+#         xlab = "Year", ylab = "Standardized log (CPUE)", main="A",
+#         col = c("#d95f02", "#7570b3","#1b9e77"), xaxt='n')
+# axis(side=1, at=seq(1999, 2019, by=5))
+# lines(years, as.vector(mod_11$states),col="black")
+# text(1999, 1.5, expression(italic("Northern crangon shrimp")),
+#      pos = 4, col = "#d95f02")
+# text(1999, 1.2, expression(italic("Pink shrimp")),
+#      pos = 4, col = "#7570b3")
+# text(1999, 0.9, expression(italic("Spot shrimp")),
+#      pos = 4, col = "#1b9e77")
+# 
+# #### plot fits top model ####
+# 
+# ## plot data and fit
+# matplot(years, t(shrimp_trans),
+#         type = "o", lty = "solid", pch = 16, las = 1,
+#         xlab = "", ylab = "",main="B",
+#         col = c("#d95f02", "#7570b3","#1b9e77"), xaxt='n')
+# axis(side=1, at=seq(1999, 2019, by=5))
+# lines(years, as.vector(mod_8$states),col="black")
+# 
+# 
+# dev.off()
+# 
