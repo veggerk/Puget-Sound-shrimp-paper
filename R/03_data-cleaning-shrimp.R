@@ -96,3 +96,15 @@ shapiro.test(log(pink_shrimp$cpue))
 hist(log(spot_shrimp$cpue))
 spot_shrimp <- spot_shrimp[-1, ]
 shapiro.test(log(spot_shrimp$cpue))
+
+
+
+
+## shrimp time and depth summary
+summary_time_depth <- data_raw_shrimp %>%
+  filter(latin_name %in% genera) %>%
+  group_by(latin_name, shift, depth_m) %>%
+  summarise(total_count = sum(number))
+
+
+
